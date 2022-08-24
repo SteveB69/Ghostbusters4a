@@ -1,5 +1,6 @@
+call SCRN2
 call clear
-call screen(2)
+call screen2(2)
 call magnify(4)
 call autochar
 
@@ -13,6 +14,22 @@ call sprite(#6,98,4,104,28)
 
 call sprite(#10,100,9,132,140)
 call sprite(#11,104,13,50,70)
+
+call COLOR2(29,5,15) // bricks
+call COLOR2(30,5,15) // bricks
+
+for i=4 to 15
+  call hchar(i,5,11,24)
+next i
+call hchar(16,5,10,24)
+for i=5 to 13 step 4
+  for j=6 to 27 step 4
+    call hchar(i,j,6,1)
+    call hchar(i+1,j,7,1)
+    call hchar(i,j+1,8,1)
+    call hchar(i+1,j+1,9,1)
+  next j
+next i
 
 repeat
   call key(3,k,s)
