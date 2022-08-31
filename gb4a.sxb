@@ -4,24 +4,13 @@ call screen2(2)
 call magnify(4)
 call autochar
 
-call sprite(#1,94,4,40,80)
-call sprite(#2,94,4,72,96)
-call sprite(#3,94,4,104,112)
-
-call sprite(#4,98,4,40,60)
-call sprite(#5,98,4,72,44)
-call sprite(#6,98,4,104,28)
-
-call sprite(#10,100,9,132,140)
-call sprite(#11,104,13,50,70)
-
 call COLOR2(29,5,15) // bricks
 call COLOR2(30,5,15) // bricks
 
 for i=4 to 15
   call hchar(i,5,11,24)
 next i
-call hchar(16,5,10,24)
+call hchar(16,1,10,32)
 for i=5 to 13 step 4
   for j=6 to 27 step 4
     call hchar(i,j,6,1)
@@ -31,7 +20,74 @@ for i=5 to 13 step 4
   next j
 next i
 
-repeat
-  call key(3,k,s)
-until s<>0
+call sprite(#10,100,9,132,200)
+call sprite(#12,108,13,50,70)
+call sprite(#13,112,11,140,200)
 
+state=1
+x=200
+gx=70
+gy=50
+
+repeat
+  call key(1,k,s)
+  call joyst(1,jx,jy)
+  on state gosub state_buster1bait,state_buster1,state_buster2,state_beam
+  gxd = rnd*21-10
+  gyd = rnd*21-10
+  call position(#12,gy,gx)
+  if gx<30  then gxd=rnd*10
+  if gx>200 then gxd=-rnd*10
+  if gy<30  then gyd=rnd*10
+  if gy>70  then gyd=-rnd*10
+  call motion(#12,gyd,gxd)
+until 1=0
+
+end
+
+state_buster1bait:
+  x=x+jx
+  if jx<>0 then call pattern(#10,100-4*(jx=4))
+  call locate(#10,132,x)
+  call locate(#13,140,x)
+  if k<>18 then return
+  call locate(#13,155,x)
+  state = state + 1
+return
+
+state_buster1:
+  x=x+jx
+  if jx<>0 then call pattern(#10,100-4*(jx=4))
+  call locate(#10,132,x)
+  if k<>18 then return
+  call pattern(#10,104)
+  call sprite(#11,100,9,132,200)
+  x1=x
+  x=200
+  state = state + 1
+return
+
+state_buster2:
+  x=x+jx
+  if jx<>0 then call pattern(#11,100-4*(jx=4))
+  call locate(#11,132,x)
+  if k<>18 then return
+  call pattern(#11,100)
+  x2 = x
+  call sprite(#1,94,4,40,x2-60)
+  call sprite(#2,94,4,72,x2-44)
+  call sprite(#3,94,4,104,x2-28)
+
+  call sprite(#4,98,4,40,x1+60)
+  call sprite(#5,98,4,72,x1+44)
+  call sprite(#6,98,4,104,x1+28)
+
+  state = state + 1
+return
+
+state_beam:
+  x1=x1-4*(jx=4)
+  x2=x2+4*(jx=-4)
+  if jx=4  then call locate(#10,132,x1,#4,40,x1+60,#5,72,x1+44,#6,104,x1+28)
+  if jx=-4 then call locate(#11,132,x2,#1,40,x2-60,#2,72,x2-44,#3,104,x2-28)
+return
