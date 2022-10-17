@@ -5,83 +5,120 @@
 140 call autochar
 150 CALL LINK("COLOR2",29,5,15)
 160 CALL LINK("COLOR2",30,5,15)
-170 for i=4 to 15
-180 call hchar(i,5,11,24)
-190 next i
-200 call hchar(16,1,10,32)
-210 for i=5 to 13 step 4
-220 for j=6 to 27 step 4
-230 call hchar(i,j,6,1)
-240 call hchar(i+1,j,7,1)
-250 call hchar(i,j+1,8,1)
-260 call hchar(i+1,j+1,9,1)
-270 next j
-280 next i
-290 call sprite(#10,100,9,132,200)
-300 call sprite(#12,108,13,50,70)
-310 call sprite(#13,112,11,140,200)
-320 state=1
-330 x=200
-340 gx=70
-350 gy=50
-360 call key(1,k,s)
-370 call joyst(1,jx,jy)
-380 on state gosub 490,570,670,810
-390 gxd = rnd*21-10
-400 gyd = rnd*21-10
-410 call position(#12,gy,gx)
-420 if gx<30  then gxd=rnd*10
-430 if gx>200 then gxd=-rnd*10
-440 if gy<30  then gyd=rnd*10
-450 if gy>70  then gyd=-rnd*10
-460 call motion(#12,gyd,gxd)
-470 IF NOT (1=0) THEN 360
-480 end
-490 x=x+jx
-500 if jx<>0 then call pattern(#10,100-4*(jx=4))
-510 call locate(#10,132,x)
-520 call locate(#13,140,x)
-530 if k<>18 then return
-540 call locate(#13,155,x)
-550 state = state + 1
-560 return
-570 x=x+jx
-580 if jx<>0 then call pattern(#10,100-4*(jx=4))
-590 call locate(#10,132,x)
+170 CALL LINK("COLOR2",31,12,2)
+180 for i=4 to 15
+190 call hchar(i,5,11,24)
+200 next i
+210 call hchar(16,1,10,32)
+220 for i=5 to 13 step 4
+230 for j=6 to 27 step 4
+240 call hchar(i,j,6,1)
+250 call hchar(i+1,j,7,1)
+260 call hchar(i,j+1,8,1)
+270 call hchar(i+1,j+1,9,1)
+280 next j
+290 next i
+300 call sprite(#10,100,9,132,200)
+310 call sprite(#12,108,13,50,150)
+320 call sprite(#13,112,11,140,200)
+330 state=1
+340 x=200
+350 gx=70
+360 gy=50
+370 call key(1,k,s)
+380 if s=-1 then k=0
+390 call joyst(1,jx,jy)
+400 on state gosub 560,650,750,890,1060
+410 gxd = gxd + (rnd*11)-5
+420 gyd = gyd + (rnd*11)-5
+430 call position(#12,gy,gx)
+440 if gx<30  then gxd=rnd*10+1
+450 if gx>200 then gxd=-rnd*10-1
+460 if gy<30  then gyd=rnd*10+1
+470 if gy>70  then gyd=-rnd*10-1
+480 if state>3 then GOSUB 20000
+490 if GBND=2 then GXD=0 :: GYD = 10
+500 call motion(#12,gyd,gxd)
+510 CALL LINK("DELAY",50)
+520 IF NOT (state>5) THEN 370
+530 if state=6 then gosub 980
+540 IF NOT (1=2) THEN 540
+550 end
+560 x=x+jx
+570 if jx<>0 then call pattern(#10,100-4*(jx=4))
+580 call locate(#10,132,x)
+590 call locate(#13,140,x)
 600 if k<>18 then return
-610 call pattern(#10,104)
-620 call sprite(#11,100,9,132,200)
-630 x1=x
-640 x=200
-650 state = state + 1
-660 return
-670 x=x+jx
-680 if jx<>0 then call pattern(#11,100-4*(jx=4))
-690 call locate(#11,132,x)
-700 if k<>18 then return
-710 call pattern(#11,100)
-720 x2 = x
-730 call sprite(#1,94,4,40,x2-60)
-740 call sprite(#2,94,4,72,x2-44)
-750 call sprite(#3,94,4,104,x2-28)
-760 call sprite(#4,98,4,40,x1+60)
-770 call sprite(#5,98,4,72,x1+44)
-780 call sprite(#6,98,4,104,x1+28)
-790 state = state + 1
-800 return
-810 x1=x1-4*(jx=4)
-820 x2=x2+4*(jx=-4)
-830 if jx=4  then call locate(#10,132,x1,#4,40,x1+60,#5,72,x1+44,#6,104,x1+28)
-840 if jx=-4 then call locate(#11,132,x2,#1,40,x2-60,#2,72,x2-44,#3,104,x2-28)
-850 return
-860 SUB AUTOCHAR
-870 CALL CHAR(92,"010100000000000000000000000000008080C0C06060303018180C0C06060303")
-880 CALL CHAR(96,"0101030306060C0C181830306060C0C080800000000000000000000000000000")
-890 CALL CHAR(100,"0303231109070303030202040D000000808080A0A0A0A0A08080808080000000")
-900 CALL CHAR(104,"01010105050505050101010101000000C0C0C48890E0C0C0C0404020B0000000")
-910 CALL CHAR(108,"01070D1F1908080E3F2F2F272733010000C060F0302020E0F0D0D090B01080C0")
-920 CALL CHAR(112,"0007081F1F000000000000000000000000E010F8F80000000000000000000000")
-930 CALL LINK("CHAR2",0,"FF8888FF2222FF8888FF2222FF8888FFFF8888FF80BFBFBFBFBFBF80FF8888FFFF8888FF22A2BFA8")
-940 CALL LINK("CHAR2",5,"A8BFA222FF8888FF007F405F5F5F5F5F5F5F5F5F407F000000FE02FAFAFAFAFAFAFAFAFA02FE0000")
-950 CALL LINK("CHAR2",10,"88002200FFFF00FF8800220088002200")
-960 SUBEND
+610 trx = int(x/8)*8+3
+620 call locate(#13,153,trx)
+630 state = state + 1
+640 return
+650 x=x+jx
+660 if jx<>0 then call pattern(#10,100-4*(jx=4))
+670 call locate(#10,132,x)
+680 if k<>18 then return
+690 call pattern(#10,104)
+700 call sprite(#11,100,9,132,200)
+710 x1=x
+720 x=200
+730 state = state + 1
+740 return
+750 x=x+jx
+760 if jx<>0 then call pattern(#11,100-4*(jx=4))
+770 call locate(#11,132,x)
+780 if k<>18 then return
+790 call pattern(#11,100)
+800 x2 = x
+810 call sprite(#1,94,4,40,x2-60)
+820 call sprite(#2,94,4,72,x2-44)
+830 call sprite(#3,94,4,104,x2-28)
+840 call sprite(#4,98,4,40,x1+60)
+850 call sprite(#5,98,4,72,x1+44)
+860 call sprite(#6,98,4,104,x1+28)
+870 state = state + 1
+880 return
+890 x1=x1-4*(jx=4)
+900 x2=x2+4*(jx=-4)
+910 if jx=4  then call locate(#10,132,x1,#4,40,x1+60,#5,72,x1+44,#6,104,x1+28)
+920 if jx=-4 then call locate(#11,132,x2,#1,40,x2-60,#2,72,x2-44,#3,104,x2-28)
+930 if k<>18 then return
+940 state=5
+950 try=123
+960 call sprite(#14,120,12,123,trx-6)
+970 return
+980 call delsprite(#1,#2,#3,#4,#5,#6)
+990 call pattern(#10,116,#11,116)
+1000 call motion(#12,-5,5)
+1010 CALL LINK("DISPLY",1,5,"You crossed the streams!")
+1020 call position(#12,gy,gx)
+1030 IF NOT (gy<5 or gx>250) THEN 1020
+1040 call delsprite(#12)
+1050 return
+1060 if try >20 then try=try-2
+1070 call locate(#14,try,trx-6)
+1080 call hchar(try/8+4,trx/8+2,16,1)
+1090 return
+1100 END
+20000 dx = gx - (x1+28 + (135-gy)/2)
+20010 GBND=0
+20020 if dx<-5 and dx>-20 then gxd=5 :: call sound(-200,110,0) :: GBND=1
+20030 if dx<-20 and dx>-40 then gxd=-5 :: call sound(-200,220,0)
+20040 dx = gx - (x2 - (135-gy)/2)
+20050 if dx<5 and dx>-20 then gxd=-5 :: call sound(-200,440,0) :: GBND = GBND+1
+20060 if dx>5 and dx<15 then gxd=5  :: call sound(-200,880,0)
+20070 if x2-x1<125 then state=6
+20080 RETURN
+30000 SUB AUTOCHAR
+30010 CALL CHAR(92,"010100000000000000000000000000008080C0C06060303018180C0C06060303")
+30020 CALL CHAR(96,"0101030306060C0C181830306060C0C080800000000000000000000000000000")
+30030 CALL CHAR(100,"0303231109070303030202040D000000808080A0A0A0A0A08080808080000000")
+30040 CALL CHAR(104,"01010105050505050101010101000000C0C0C48890E0C0C0C0404020B0000000")
+30050 CALL CHAR(108,"01070D1F1908080E3F2F2F272733010000C060F0302020E0F0D0D090B01080C0")
+30060 CALL CHAR(112,"3F40FFFF0000000000000000000000000080C0C0000000000000000000000000")
+30070 CALL CHAR(116,"0000000000000000000000041F377CFF0000000000000000000000D07CEEDEFF")
+30080 CALL CHAR(120,"60C0C0C0C0C0E0783F0F030303030303060303030303071EFCF0C0C0C0C0C0C0")
+30090 CALL LINK("CHAR2",0,"FF8888FF2222FF8888FF2222FF8888FFFF8888FF80BFBFBFBFBFBF80FF8888FFFF8888FF22A2BFA8")
+30100 CALL LINK("CHAR2",5,"A8BFA222FF8888FF007F405F5F5F5F5F5F5F5F5F407F000000FE02FAFAFAFAFAFAFAFAFA02FE0000")
+30110 CALL LINK("CHAR2",10,"88002200FFFF00FF8800220088002200")
+30120 CALL LINK("CHAR2",16,"FFFFFFFFFFFFFFFF")
+30130 SUBEND

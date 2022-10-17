@@ -6,6 +6,7 @@ call autochar
 
 call COLOR2(29,5,15) // bricks
 call COLOR2(30,5,15) // bricks
+call COLOR2(31,12,2) // Yellow Beam
 
 for i=4 to 15
   call hchar(i,5,11,24)
@@ -21,7 +22,7 @@ for i=5 to 13 step 4
 next i
 
 call sprite(#10,100,9,132,200)
-call sprite(#12,108,13,50,70)
+call sprite(#12,108,13,50,150)
 call sprite(#13,112,11,140,200)
 
 state=1
@@ -31,17 +32,37 @@ gy=50
 
 repeat
   call key(1,k,s)
+  if s=-1 then k=0
   call joyst(1,jx,jy)
-  on state gosub state_buster1bait,state_buster1,state_buster2,state_beam
-  gxd = rnd*21-10
-  gyd = rnd*21-10
+  on state gosub state_buster1bait,state_buster1,state_buster2,state_beam,state_trap
+  gxd = gxd + (rnd*11)-5
+  gyd = gyd + (rnd*11)-5
   call position(#12,gy,gx)
-  if gx<30  then gxd=rnd*10
-  if gx>200 then gxd=-rnd*10
-  if gy<30  then gyd=rnd*10
-  if gy>70  then gyd=-rnd*10
+  if gx<30  then gxd=rnd*10+1
+  if gx>200 then gxd=-rnd*10-1
+  if gy<30  then gyd=rnd*10+1
+  if gy>70  then gyd=-rnd*10-1
+  if state>3 then begin
+    dx = gx - (x1+28 + (135-gy)/2)
+    GBND=0
+    // display at(24,1):dx
+    if dx<-5 and dx>-20 then gxd=5 :: call sound(-200,110,0) :: GBND=1
+    if dx<-20 and dx>-40 then gxd=-5 :: call sound(-200,220,0)
+
+    dx = gx - (x2 - (135-gy)/2)
+    // display at(24,24):dx;
+    if dx<5 and dx>-20 then gxd=-5 :: call sound(-200,440,0) :: GBND = GBND+1
+    if dx>5 and dx<15 then gxd=5  :: call sound(-200,880,0)
+    if x2-x1<125 then state=6 // streams crossed
+  end
+  if GBND=2 then GXD=0 :: GYD = 10 // ::  display at(24,11):"BND"
   call motion(#12,gyd,gxd)
-until 1=0
+  call delay(50)
+until state>5
+if state=6 then gosub StreamsCrossed
+
+repeat
+until 1=2
 
 end
 
@@ -51,7 +72,8 @@ state_buster1bait:
   call locate(#10,132,x)
   call locate(#13,140,x)
   if k<>18 then return
-  call locate(#13,155,x)
+  trx = int(x/8)*8+3
+  call locate(#13,153,trx)
   state = state + 1
 return
 
@@ -90,4 +112,28 @@ state_beam:
   x2=x2+4*(jx=-4)
   if jx=4  then call locate(#10,132,x1,#4,40,x1+60,#5,72,x1+44,#6,104,x1+28)
   if jx=-4 then call locate(#11,132,x2,#1,40,x2-60,#2,72,x2-44,#3,104,x2-28)
+  if k<>18 then return
+  state=5
+  try=123
+  call sprite(#14,120,12,123,trx-6)
 return
+
+StreamsCrossed:
+  call delsprite(#1,#2,#3,#4,#5,#6)
+  call pattern(#10,116,#11,116)
+  call motion(#12,-5,5)
+  call disply(1,5,"You crossed the streams!")
+  repeat
+    call position(#12,gy,gx)
+  until gy<5 or gx>250
+  call delsprite(#12)
+return
+
+State_Trap:
+  if try >20 then try=try-2
+  call locate(#14,try,trx-6)
+  call hchar(try/8+4,trx/8+2,16,1)
+
+
+return
+
