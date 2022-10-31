@@ -25,6 +25,13 @@ call sprite(#10,100,9,132,200)
 call sprite(#12,108,13,50,150)
 call sprite(#13,112,11,140,200)
 
+// speech: He slimed me!
+a$=bin$("0498394c80e3752ab85705acfaae80955f1835538353ad25c0b7610cf8358301bfa513e0af7402fc9d4e805fda10705531cb33f37e4b75aac8dceb3cd49b3489ce16cb6e8ad85335264b288bc956f776ad1cda32d2938d6ae8f0084d3bea1133c2d56dab7bca")
+b$=bin$("34956da5ed294254b785b6250e4ddf22f062a93a3a31a9a3f4d8543b046cd22d2b6c23b031d3887083c042d56a3a2923472a668fac0ced2d5cc5fa88718c080eed2bc6f17248bc0b01c66e47c02eee08d8a91c01cb972360bb72046c9f8e80edca10b06c28")
+sp$=chr$(96) & chr$(0) & chr$(LEN(a$)+LEN(b$)) & a$ & b$
+
+// call SAY("",sp$)
+
 state=1
 x=200
 gx=70
@@ -53,10 +60,10 @@ repeat
     // display at(24,24):dx;
     if dx<5 and dx>-20 then gxd=-5 :: call sound(-200,440,0) :: GBND = GBND+1
     if dx>5 and dx<15 then gxd=5  :: call sound(-200,880,0)
-    if x2-x1<125 then state=6 // streams crossed
+    if state<5 and x2-x1<125 then state=6 // streams crossed
   end
   if GBND=2 then GXD=0 :: GYD = 10 // ::  display at(24,11):"BND"
-  call motion(#12,gyd,gxd)
+  if state<6 then call motion(#12,gyd,gxd)
   call delay(50)
 until state>5
 if state=6 then gosub StreamsCrossed
@@ -67,7 +74,7 @@ until 1=2
 end
 
 state_buster1bait:
-  x=x+jx
+  x=max(x+jx,4)
   if jx<>0 then call pattern(#10,100-4*(jx=4))
   call locate(#10,132,x)
   call locate(#13,140,x)
@@ -78,7 +85,7 @@ state_buster1bait:
 return
 
 state_buster1:
-  x=x+jx
+  x=max(x+jx,4)
   if jx<>0 then call pattern(#10,100-4*(jx=4))
   call locate(#10,132,x)
   if k<>18 then return
@@ -130,10 +137,51 @@ StreamsCrossed:
 return
 
 State_Trap:
-  if try >20 then try=try-2
+  if try >20 then try=try-2 else state=8
   call locate(#14,try,trx-6)
-  call hchar(try/8+4,trx/8+2,16,1)
-
-
+  if try-int(try/8)*8=1 then begin
+    call gchar(try/8+4,trx/8+2,c)
+    call hchar(try/8+4,trx/8+2,16,1)
+    bg$=bg$&chr$(c)
+  end
+  call distance(#12,#14,e)
+  if e<800 or state=8 then begin
+    for try=try to 123 step 2
+      call locate(#14,try,trx-6)
+      if state=8 then call locate(#12,gy-8+rnd*4,gx-8+rnd*4) else
+                      call locate(#12,try,trx-9+rnd*6)
+      if try-int(try/8)*8=1 then begin
+        call hchar(try/8+4,trx/8+2,asc(seg$(bg$,len(bg$),1)))
+        bg$=seg$(bg$,1,len(bg$)-1)
+      end
+      call delay(40)
+    next try
+    call delsprite(#12,#14,#1,#2,#3,#4,#5,#6)
+    if state=8 then begin
+      for i=1 to 132-gy
+        call locate(#12,gy+i,gx+i*(x2-gx)/(132-gy))
+        call delay(40)
+      next i
+      // call SAY("",sp$)
+      call color(#11,3)
+      call motion(#12,-5,5)
+      repeat
+        call position(#12,gy,gx)
+      until gy<5 or gx>250
+      call delsprite(#12)
+    end else call color(#13,3)
+    while x1<250
+      x1=x1+4
+      if x1=trx-3 then call locate(#13,140,trx) :: trx=trx+4
+      call locate(#10,132,x1)
+      if x1=x2-40 then call pattern(#11,104)
+      if x2<x1-30 then call locate(#11,132,x2) :: x2=x2+4
+      call delay(50)
+    endwhile
+    call delsprite(#10,#11,#13)
+    state=7
+  end
 return
+
+
 

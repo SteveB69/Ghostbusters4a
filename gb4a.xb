@@ -21,84 +21,89 @@
 300 call sprite(#10,100,9,132,200)
 310 call sprite(#12,108,13,50,150)
 320 call sprite(#13,112,11,140,200)
-330 state=1
-340 x=200
-350 gx=70
-360 gy=50
-370 call key(1,k,s)
-380 if s=-1 then k=0
-390 call joyst(1,jx,jy)
-400 on state gosub 560,650,750,890,1060
-410 gxd = gxd + (rnd*11)-5
-420 gyd = gyd + (rnd*11)-5
-430 call position(#12,gy,gx)
-440 if gx<30  then gxd=rnd*10+1
-450 if gx>200 then gxd=-rnd*10-1
-460 if gy<30  then gyd=rnd*10+1
-470 if gy>70  then gyd=-rnd*10-1
-480 if state>3 then GOSUB 20000
-490 if GBND=2 then GXD=0 :: GYD = 10
-500 call motion(#12,gyd,gxd)
-510 CALL LINK("DELAY",50)
-520 IF NOT (state>5) THEN 370
-530 if state=6 then gosub 980
-540 IF NOT (1=2) THEN 540
-550 end
-560 x=x+jx
-570 if jx<>0 then call pattern(#10,100-4*(jx=4))
-580 call locate(#10,132,x)
-590 call locate(#13,140,x)
-600 if k<>18 then return
-610 trx = int(x/8)*8+3
-620 call locate(#13,153,trx)
-630 state = state + 1
-640 return
-650 x=x+jx
-660 if jx<>0 then call pattern(#10,100-4*(jx=4))
-670 call locate(#10,132,x)
-680 if k<>18 then return
-690 call pattern(#10,104)
-700 call sprite(#11,100,9,132,200)
-710 x1=x
-720 x=200
-730 state = state + 1
-740 return
-750 x=x+jx
-760 if jx<>0 then call pattern(#11,100-4*(jx=4))
-770 call locate(#11,132,x)
-780 if k<>18 then return
-790 call pattern(#11,100)
-800 x2 = x
-810 call sprite(#1,94,4,40,x2-60)
-820 call sprite(#2,94,4,72,x2-44)
-830 call sprite(#3,94,4,104,x2-28)
-840 call sprite(#4,98,4,40,x1+60)
-850 call sprite(#5,98,4,72,x1+44)
-860 call sprite(#6,98,4,104,x1+28)
-870 state = state + 1
-880 return
-890 x1=x1-4*(jx=4)
-900 x2=x2+4*(jx=-4)
-910 if jx=4  then call locate(#10,132,x1,#4,40,x1+60,#5,72,x1+44,#6,104,x1+28)
-920 if jx=-4 then call locate(#11,132,x2,#1,40,x2-60,#2,72,x2-44,#3,104,x2-28)
-930 if k<>18 then return
-940 state=5
-950 try=123
-960 call sprite(#14,120,12,123,trx-6)
-970 return
-980 call delsprite(#1,#2,#3,#4,#5,#6)
-990 call pattern(#10,116,#11,116)
-1000 call motion(#12,-5,5)
-1010 CALL LINK("DISPLY",1,5,"You crossed the streams!")
-1020 call position(#12,gy,gx)
-1030 IF NOT (gy<5 or gx>250) THEN 1020
-1040 call delsprite(#12)
-1050 return
-1060 if try >20 then try=try-2
-1070 call locate(#14,try,trx-6)
-1080 call hchar(try/8+4,trx/8+2,16,1)
-1090 return
-1100 END
+330 a$=bin$("0498394c80e3752ab85705acfaae80955f1835538353ad25c0b7610cf8358301bfa513e0af7402fc9d4e805fda10705531cb33f37e4b75aac8dceb3cd49b3489ce16cb6e8ad85335264b288bc956f776ad1cda32d2938d6ae8f0084d3bea1133c2d56dab7bca")
+340 b$=bin$("34956da5ed294254b785b6250e4ddf22f062a93a3a31a9a3f4d8543b046cd22d2b6c23b031d3887083c042d56a3a2923472a668fac0ced2d5cc5fa88718c080eed2bc6f17248bc0b01c66e47c02eee08d8a91c01cb972360bb72046c9f8e80edca10b06c28")
+350 sp$=chr$(96) & chr$(0) & chr$(LEN(a$)+LEN(b$)) & a$ & b$
+360 state=1
+370 x=200
+380 gx=70
+390 gy=50
+400 call key(1,k,s)
+410 if s=-1 then k=0
+420 call joyst(1,jx,jy)
+430 on state gosub 590,680,780,920,1090
+440 gxd = gxd + (rnd*11)-5
+450 gyd = gyd + (rnd*11)-5
+460 call position(#12,gy,gx)
+470 if gx<30  then gxd=rnd*10+1
+480 if gx>200 then gxd=-rnd*10-1
+490 if gy<30  then gyd=rnd*10+1
+500 if gy>70  then gyd=-rnd*10-1
+510 if state>3 then GOSUB 20000
+520 if GBND=2 then GXD=0 :: GYD = 10
+530 if state<6 then call motion(#12,gyd,gxd)
+540 CALL LINK("DELAY",50)
+550 IF NOT (state>5) THEN 400
+560 if state=6 then gosub 1010
+570 IF NOT (1=2) THEN 570
+580 end
+590 x=max(x+jx,4)
+600 if jx<>0 then call pattern(#10,100-4*(jx=4))
+610 call locate(#10,132,x)
+620 call locate(#13,140,x)
+630 if k<>18 then return
+640 trx = int(x/8)*8+3
+650 call locate(#13,153,trx)
+660 state = state + 1
+670 return
+680 x=max(x+jx,4)
+690 if jx<>0 then call pattern(#10,100-4*(jx=4))
+700 call locate(#10,132,x)
+710 if k<>18 then return
+720 call pattern(#10,104)
+730 call sprite(#11,100,9,132,200)
+740 x1=x
+750 x=200
+760 state = state + 1
+770 return
+780 x=x+jx
+790 if jx<>0 then call pattern(#11,100-4*(jx=4))
+800 call locate(#11,132,x)
+810 if k<>18 then return
+820 call pattern(#11,100)
+830 x2 = x
+840 call sprite(#1,94,4,40,x2-60)
+850 call sprite(#2,94,4,72,x2-44)
+860 call sprite(#3,94,4,104,x2-28)
+870 call sprite(#4,98,4,40,x1+60)
+880 call sprite(#5,98,4,72,x1+44)
+890 call sprite(#6,98,4,104,x1+28)
+900 state = state + 1
+910 return
+920 x1=x1-4*(jx=4)
+930 x2=x2+4*(jx=-4)
+940 if jx=4  then call locate(#10,132,x1,#4,40,x1+60,#5,72,x1+44,#6,104,x1+28)
+950 if jx=-4 then call locate(#11,132,x2,#1,40,x2-60,#2,72,x2-44,#3,104,x2-28)
+960 if k<>18 then return
+970 state=5
+980 try=123
+990 call sprite(#14,120,12,123,trx-6)
+1000 return
+1010 call delsprite(#1,#2,#3,#4,#5,#6)
+1020 call pattern(#10,116,#11,116)
+1030 call motion(#12,-5,5)
+1040 CALL LINK("DISPLY",1,5,"You crossed the streams!")
+1050 call position(#12,gy,gx)
+1060 IF NOT (gy<5 or gx>250) THEN 1050
+1070 call delsprite(#12)
+1080 return
+1090 if try >20 then try=try-2 else state=8
+1100 call locate(#14,try,trx-6)
+1110 if try-int(try/8)*8=1 then GOSUB 20090
+1120 call distance(#12,#14,e)
+1130 if e<800 or state=8 then GOSUB 20130
+1140 return
+1150 END
 20000 dx = gx - (x1+28 + (135-gy)/2)
 20010 GBND=0
 20020 if dx<-5 and dx>-20 then gxd=5 :: call sound(-200,110,0) :: GBND=1
@@ -106,8 +111,44 @@
 20040 dx = gx - (x2 - (135-gy)/2)
 20050 if dx<5 and dx>-20 then gxd=-5 :: call sound(-200,440,0) :: GBND = GBND+1
 20060 if dx>5 and dx<15 then gxd=5  :: call sound(-200,880,0)
-20070 if x2-x1<125 then state=6
+20070 if state<5 and x2-x1<125 then state=6
 20080 RETURN
+20090 call gchar(try/8+4,trx/8+2,c)
+20100 call hchar(try/8+4,trx/8+2,16,1)
+20110 bg$=bg$&chr$(c)
+20120 RETURN
+20130 for try=try to 123 step 2
+20140 call locate(#14,try,trx-6)
+20150 if state=8 then call locate(#12,gy-8+rnd*4,gx-8+rnd*4) else call locate(#12,try,trx-9+rnd*6)
+20160 if try-int(try/8)*8=1 then GOSUB 20320
+20170 CALL LINK("DELAY",40)
+20180 next try
+20190 call delsprite(#12,#14,#1,#2,#3,#4,#5,#6)
+20200 if state=8 then GOSUB 20350 else call color(#13,3)
+20210 GOTO 20280
+20220 x1=x1+4
+20230 if x1=trx-3 then call locate(#13,140,trx) :: trx=trx+4
+20240 call locate(#10,132,x1)
+20250 if x1=x2-40 then call pattern(#11,104)
+20260 if x2<x1-30 then call locate(#11,132,x2) :: x2=x2+4
+20270 CALL LINK("DELAY",50)
+20280 IF x1<250 THEN 20220
+20290 call delsprite(#10,#11,#13)
+20300 state=7
+20310 RETURN
+20320 call hchar(try/8+4,trx/8+2,asc(seg$(bg$,len(bg$),1)))
+20330 bg$=seg$(bg$,1,len(bg$)-1)
+20340 RETURN
+20350 for i=1 to 132-gy
+20360 call locate(#12,gy+i,gx+i*(x2-gx)/(132-gy))
+20370 CALL LINK("DELAY",40)
+20380 next i
+20390 call color(#11,3)
+20400 call motion(#12,-5,5)
+20410 call position(#12,gy,gx)
+20420 IF NOT (gy<5 or gx>250) THEN 20410
+20430 call delsprite(#12)
+20440 RETURN
 30000 SUB AUTOCHAR
 30010 CALL CHAR(92,"010100000000000000000000000000008080C0C06060303018180C0C06060303")
 30020 CALL CHAR(96,"0101030306060C0C181830306060C0C080800000000000000000000000000000")
