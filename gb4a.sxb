@@ -4,74 +4,151 @@ call screen2(2)
 call magnify(4)
 call autochar
 
-call COLOR2(29,5,15) // bricks
-call COLOR2(30,5,15) // bricks
-call COLOR2(31,12,2) // Yellow Beam
-
-for i=4 to 15
-  call hchar(i,5,11,24)
-next i
-call hchar(16,1,10,32)
-for i=5 to 13 step 4
-  for j=6 to 27 step 4
-    call hchar(i,j,6,1)
-    call hchar(i+1,j,7,1)
-    call hchar(i,j+1,8,1)
-    call hchar(i+1,j+1,9,1)
-  next j
-next i
-
-call sprite(#10,100,9,132,200)
-call sprite(#12,108,13,50,150)
-call sprite(#13,112,11,140,200)
-
-// speech: He slimed me!
-a$=bin$("0498394c80e3752ab85705acfaae80955f1835538353ad25c0b7610cf8358301bfa513e0af7402fc9d4e805fda10705531cb33f37e4b75aac8dceb3cd49b3489ce16cb6e8ad85335264b288bc956f776ad1cda32d2938d6ae8f0084d3bea1133c2d56dab7bca")
-b$=bin$("34956da5ed294254b785b6250e4ddf22f062a93a3a31a9a3f4d8543b046cd22d2b6c23b031d3887083c042d56a3a2923472a668fac0ced2d5cc5fa88718c080eed2bc6f17248bc0b01c66e47c02eee08d8a91c01cb972360bb72046c9f8e80edca10b06c28")
-sp$=chr$(96) & chr$(0) & chr$(LEN(a$)+LEN(b$)) & a$ & b$
-
-// call SAY("",sp$)
-
-state=1
-x=200
-gx=70
-gy=50
-
 repeat
-  call key(1,k,s)
-  if s=-1 then k=0
-  call joyst(1,jx,jy)
-  on state gosub state_buster1bait,state_buster1,state_buster2,state_beam,state_trap
-  gxd = gxd + (rnd*11)-5
-  gyd = gyd + (rnd*11)-5
-  call position(#12,gy,gx)
-  if gx<30  then gxd=rnd*10+1
-  if gx>200 then gxd=-rnd*10-1
-  if gy<30  then gyd=rnd*10+1
-  if gy>70  then gyd=-rnd*10-1
-  if state>3 then begin
-    dx = gx - (x1+28 + (135-gy)/2)
-    GBND=0
-    // display at(24,1):dx
-    if dx<-5 and dx>-20 then gxd=5 :: call sound(-200,110,0) :: GBND=1
-    if dx<-20 and dx>-40 then gxd=-5 :: call sound(-200,220,0)
-
-    dx = gx - (x2 - (135-gy)/2)
-    // display at(24,24):dx;
-    if dx<5 and dx>-20 then gxd=-5 :: call sound(-200,440,0) :: GBND = GBND+1
-    if dx>5 and dx<15 then gxd=5  :: call sound(-200,880,0)
-    if state<5 and x2-x1<125 then state=6 // streams crossed
-  end
-  if GBND=2 then GXD=0 :: GYD = 10 // ::  display at(24,11):"BND"
-  if state<6 then call motion(#12,gyd,gxd)
-  call delay(50)
-until state>5
-if state=6 then gosub StreamsCrossed
-
-repeat
-until 1=2
-
+  gosub map
+  gosub drive
+  gosub HouseGhost
+  call clear
+  display at(10,5):"Play again? (Y/N)"
+  repeat
+    call key(3,k,s)
+  until s=1
+until k=78
 end
+
+map:
+
+return
+
+drive:
+  call clear
+  call char( 92,#CHAR3032:2)
+  call char( 94,#CHAR3038:2)
+  call char( 96,#CHAR3044:2)
+  call char( 98,#CHAR3050:2)
+
+  call char(100,#CHAR3034:2)
+  call char(102,#CHAR3040:2)
+  call char(104,#CHAR3046:2)
+  call char(106,#CHAR3052:2)
+
+  call char(108,#CHAR3036:2)
+  call char(110,#CHAR3042:2)
+  call char(112,#CHAR3048:2)
+  call char(114,#CHAR3054:2)
+
+  call sprite(#1, 92,15, 50,50,#2, 96,15, 50,82)
+  call sprite(#3,100,15, 82,50,#4,104,15, 82,82)
+  call sprite(#5,108,15,114,50,#6,112,15,114,82)
+
+  call char(116,#CHAR3056:4)
+  call char(120,#CHAR3060:4)
+  call sprite(#7,116,10,143,50, #8,116,10,143, 96)
+  call sprite(#9,120,16, 49,50,#10,120,16, 49,100)
+
+  call COLOR2(31,12,2)
+
+  x1=50
+  gy=-10
+  repeat
+    call joyst(1,x,y)
+    x1=x1+x/2
+    if x1<1   then x1=2
+    if x1>190 then x1=190
+    x2=x1+32
+    call locate(#1,50,x1,#2,50,x2,#3,82,x1,#4,82,x2,#5,114,x1,#6,114,x2,#7,143,x1,#8,143,x2+14,#9,49,x1,#10,49,x2+18)
+    call scrldn
+    gy=gy+1
+    if gy=10 then gy=-10
+    if gy<0 then call hchar(1,9,16,1) :: call hchar(1,20,16,1)
+
+    call delay(40)
+  until 1=2
+
+return
+
+
+
+HouseGhost:
+  CALL CHAR( 92,"010100000000000000000000000000008080C0C06060303018180C0C06060303")
+  CALL CHAR( 96,"0101030306060C0C181830306060C0C080800000000000000000000000000000")
+  CALL CHAR(100,"0303231109070303030202040D000000808080A0A0A0A0A08080808080000000")
+  CALL CHAR(104,"01010105050505050101010101000000C0C0C48890E0C0C0C0404020B0000000")
+  CALL CHAR(108,"01070D1F1908080E3F2F2F272733010000C060F0302020E0F0D0D090B01080C0")
+  CALL CHAR(112,"3F40FFFF0000000000000000000000000080C0C0000000000000000000000000")
+  CALL CHAR(116,"0000000000000000000000041F377CFF0000000000000000000000D07CEEDEFF")
+  CALL CHAR(120,"60C0C0C0C0C0E0783F0F030303030303060303030303071EFCF0C0C0C0C0C0C0")
+
+  //call char( 92,#CHAR3000:8)
+  //call char(100,#CHAR3008:8)
+  //call char(108,#CHAR3016:8)
+  //call char(112,#CHAR3024:8)
+
+
+  call COLOR2(29,5,15) // bricks
+  call COLOR2(30,5,15) // bricks
+  call COLOR2(31,12,2) // Yellow Beam
+
+  for i=4 to 15
+    call hchar(i,5,11,24)
+  next i
+  call hchar(16,1,10,32)
+  for i=5 to 13 step 4
+    for j=6 to 27 step 4
+      call hchar(i,j,6,1)
+      call hchar(i+1,j,7,1)
+      call hchar(i,j+1,8,1)
+      call hchar(i+1,j+1,9,1)
+    next j
+  next i
+
+  call sprite(#10,100,9,132,200)
+  call sprite(#12,108,13,50,150)
+  call sprite(#13,112,11,140,200)
+
+  // speech: He slimed me!
+  a$=bin$("0498394c80e3752ab85705acfaae80955f1835538353ad25c0b7610cf8358301bfa513e0af7402fc9d4e805fda10705531cb33f37e4b75aac8dceb3cd49b3489ce16cb6e8ad85335264b288bc956f776ad1cda32d2938d6ae8f0084d3bea1133c2d56dab7bca")
+  b$=bin$("34956da5ed294254b785b6250e4ddf22f062a93a3a31a9a3f4d8543b046cd22d2b6c23b031d3887083c042d56a3a2923472a668fac0ced2d5cc5fa88718c080eed2bc6f17248bc0b01c66e47c02eee08d8a91c01cb972360bb72046c9f8e80edca10b06c28")
+  sp$=chr$(96) & chr$(0) & chr$(LEN(a$)+LEN(b$)) & a$ & b$
+
+  // call SAY("",sp$)
+
+  state=1
+  x=200
+  gx=70
+  gy=50
+
+  repeat
+    call key(1,k,s)
+    if s=-1 then k=0
+    call joyst(1,jx,jy)
+    on state gosub state_buster1bait,state_buster1,state_buster2,state_beam,state_trap
+    gxd = gxd + (rnd*11)-5
+    gyd = gyd + (rnd*11)-5
+    call position(#12,gy,gx)
+    if gx<30  then gxd=rnd*10+1
+    if gx>200 then gxd=-rnd*10-1
+    if gy<30  then gyd=rnd*10+1
+    if gy>70  then gyd=-rnd*10-1
+    if state>3 then begin
+      dx = gx - (x1+28 + (135-gy)/2)
+      GBND=0
+      // display at(24,1):dx
+      if dx<-5 and dx>-20 then gxd=5 :: call sound(-200,110,0) :: GBND=1
+      if dx<-20 and dx>-40 then gxd=-5 :: call sound(-200,220,0)
+
+      dx = gx - (x2 - (135-gy)/2)
+      // display at(24,24):dx;
+      if dx<5 and dx>-20 then gxd=-5 :: call sound(-200,440,0) :: GBND = GBND+1
+      if dx>5 and dx<15 then gxd=5  :: call sound(-200,880,0)
+      if state<5 and x2-x1<125 then state=6 // streams crossed
+    end
+    if GBND=2 then GXD=0 :: GYD = 10 // ::  display at(24,11):"BND"
+    if state<6 then call motion(#12,gyd,gxd)
+    call delay(50)
+  until state>5
+  if state=6 then gosub StreamsCrossed
+return
 
 state_buster1bait:
   x=max(x+jx,4)
