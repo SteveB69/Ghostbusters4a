@@ -3,7 +3,10 @@ call clear
 call screen2(2)
 call autochar
 
+dim GEnc(9),ass(4),bl(30)
+
 gosub title
+gosub init
 
 repeat
   gosub map
@@ -25,13 +28,23 @@ title:
   display at(13,9):"Ghostbusters!"
   repeat
     call key(3,k,s)
-  until s=1
+    call key(1,k,s1)
+  until s=1 or s1=1
   call delsprite(all)
+  ac=100
+return
+
+init:
+  pk=0
+  ass(2)=1
 return
 
 map:
   call clear
   call magnify(3)
+  call char(116,#CHAR3064:4)
+  call char(120,#CHAR3068:4)
+  call char(124,#CHAR3072:8)
   call color2(13,2,2,14,2,2,15,2,2,16,2,2)
   call color2(17,2,2,31,2,2)
   call hchar(1,1,16,768)
@@ -42,11 +55,15 @@ map:
   next i
   for i=0 to 4 :: call hchar(21,11+i,160+i,1)::next i
   call hchar(1,1,32,64) :: call hchar(22,1,32,96)
+  call hchar(2,19,137,1) :: call hchar(2,20,138,1) :: call hchar(2,21,139,1)
+
   call magnify(3)
   call sprite(#1,116,9,145,121,#2,120,15,145,121,#3,88,16,226,1,0,50)
   call color2(13,2,13,14,2,13,15,2,10,16,2,10)
   call color2(17,2,12,31,16,2)
   call house(2,3,144)
+  call pkstart(pk)
+  Ghost=16 :: GY = 0
   y1 = 145 :: x1 = 121 :: dr = 0
   repeat
     call position(#3,i,j)
@@ -57,7 +74,10 @@ map:
     call gchar(y1/8+1-(y/2),max(x1/8+1+(x/2),1),e)
     if e=16 then x1=x1+x :: y1=y1-y ELSE gosub CalcHouse
     if e=16 and x+y<>0 then dr=dr+1
-    display at(23,1):dr
+    // display at(23,1):dr
+    call pkplus(pk)
+    if pk>10 and GY=0 and RND*200<PK and ghost<26 then gosub startghost
+    if GY>0 then gosub MoveGhost
     call locate(#1,y1,x1,#2,y1,x1)
     call key(1,k,s)
   until house>0 and s<>0
@@ -71,6 +91,35 @@ CalcHouse:
   if x= 4 then house=((y1-5)/40)*6  + (x1-9)/56 + 2
   if x=-4 then house=((y1-5)/40)*6  + (x1-9)/56 + 1
 RETURN
+
+startghost:
+  gz = int(rnd*4)
+  case gz of
+    0 : begin
+          gx=1 :: gy=120 + RND*40
+        end
+    1 : begin
+          gx=RND*40+1 :: gy=160
+        end
+    2 : begin
+          gx=240-RND*40 :: gy=160
+        end
+    3 : begin
+          gx=240 :: gy= 120 + RND*40
+        end
+  endcase
+  call sprite(#ghost,124-4*(gx>50),15,gy,gx)
+  GS=50+int((10000-PK)/50) :: GP=0
+return
+
+MoveGhost:
+  GP=GP+1
+  call locate(#ghost,GY+GP*(9-GY)/GS,GX+GP*(160-GX)/GS)
+  if GP=GS then  call delsprite(#ghost):: GY=0 :: pk=pk+100
+  call coinc(#ghost,#1,10,GC)
+  if GC then GY=0 :: GEnc(ghost-16)=dr :: Ghost=ghost+1
+return
+
 
 drive:
   call clear
@@ -90,30 +139,37 @@ drive:
   call char(112,#CHAR3048:2)
   call char(114,#CHAR3054:2)
 
-  call sprite(#1, 92,15, 50,50,#2, 96,15, 50,82)
-  call sprite(#3,100,15, 82,50,#4,104,15, 82,82)
-  call sprite(#5,108,15,114,50,#6,112,15,114,82)
+  call sprite(#3, 92,15, 50,50,#4, 96,15, 50,82)
+  call sprite(#5,100,15, 82,50,#6,104,15, 82,82)
+  call sprite(#7,108,15,114,50,#8,112,15,114,82)
 
   call char(116,#CHAR3056:4)
   call char(120,#CHAR3060:4)
-  call sprite(#7,116,10,143,50, #8,116,10,143, 96)
-  call sprite(#9,120,16, 49,50,#10,120,16, 49,100)
+  call char(124,#CHAR3076:8)
+  call sprite( #9,116,10,143,50,#10,116,10,143, 96)
+  call sprite(#11,120,16, 49,50,#12,120,16, 49,100)
+  call sprite(#1,124,16,194,1,#2,128,3, 53,66)
 
   call COLOR2(31,12,2)
 
+  ghost=0
+  drc=0
   x1=50
   gy=1
   gz=15
   dr2=25
   verz=40
 
+  call pkstart(pk)
+
   repeat
     call joyst(1,x,y)
-    if dr>0 then x1=x1+x/2 else x1=x1+2 :: verz=verz+2
+    if drc<dr then x1=x1+x/2 else x1=x1+2 :: verz=verz+2
     if x1<1   then x1=2
     if x1>190 then x1=190
     x2=x1+32
-    call locate(#1,50,x1,#2,50,x2,#3,82,x1,#4,82,x2,#5,114,x1,#6,114,x2,#7,143,x1,#8,143,x2+14,#9,49,x1,#10,49,x2+18)
+    call locate(#3,50,x1,#4,50,x2,#5,82,x1,#6,82,x2,#7,114,x1,#8,114,x2)
+    call locate(#9,143,x1,#10,143,x2+14,#11,49,x1,#12,49,x2+18,#2,53,x1+16)
     if gy<14 then le=min(11,gy) else le=24-gy
     call vchar(gy,9,16,le)
     if x1<62  and x1>10 then call vchar(8, 9,32,11)
@@ -123,15 +179,32 @@ drive:
     if gy>23 then gy=1 else gy=gy+1
     if gz>23 then gz=1 else gz=gz+1
 
+    if drc=GEnc(ghost) then call sprite(#1,124,16,220,78+100*rnd,4,0)::ghost=ghost+1
+    call key(1,k,s)
+    call distance(#1,#2,GC) :: call position(#1,my,mx)
+    if k=18 and GC<400 and ass(2)=1 then begin
+      GP=GP+1
+      if int(RND*2)=1 then gosub Ghostleft else gosub Ghostright
+      if my>50 then call locate(#1,my-2,mx)
+      call sound(-500,-6,8)
+      if GP=15 then call sprite(#1,124,16,194,1,0,0)
+    end else GP=0
+    if my>180 and my<200 then pk=pk+100 :: call sprite(#1,124,16,194,1,0,0)
     call delay(verz)
-    dr2=dr2-1
-    if dr2=0 then dr2=10 :: dr=dr-1
-  until dr<=0 and x1>=190 and verz>150
+    dr2=dr2-1 :: call pkplus(pk)
+    if dr2=0 then dr2=5 :: drc=drc+1
+  until drc>dr and x1>=190 and verz>150
   call delay(2000)
   call delsprite(all)
 return
 
+Ghostleft:
+  call char(124,#CHAR3076:4)
+return
 
+Ghostright:
+  call char(124,#CHAR3072:4)
+return
 
 HouseGhost:
   call clear
@@ -167,8 +240,6 @@ HouseGhost:
   a$=bin$("0498394c80e3752ab85705acfaae80955f1835538353ad25c0b7610cf8358301bfa513e0af7402fc9d4e805fda10705531cb33f37e4b75aac8dceb3cd49b3489ce16cb6e8ad85335264b288bc956f776ad1cda32d2938d6ae8f0084d3bea1133c2d56dab7bca")
   b$=bin$("34956da5ed294254b785b6250e4ddf22f062a93a3a31a9a3f4d8543b046cd22d2b6c23b031d3887083c042d56a3a2923472a668fac0ced2d5cc5fa88718c080eed2bc6f17248bc0b01c66e47c02eee08d8a91c01cb972360bb72046c9f8e80edca10b06c28")
   sp$=chr$(96) & chr$(0) & chr$(LEN(a$)+LEN(b$)) & a$ & b$
-
-  // call SAY("",sp$)
 
   state=1
   x=200
@@ -297,12 +368,14 @@ State_Trap:
         call locate(#12,gy+i,gx+i*(x2-gx)/(132-gy))
         call delay(40)
       next i
-      // call SAY("",sp$)
+      call SAY("",sp$)
       call color(#11,3)
       call motion(#12,-5,5)
       repeat
         call position(#12,gy,gx)
+        call pkplus(pk)
       until gy<5 or gx>250
+      pk=pk+300
       call delsprite(#12)
     end else call color(#13,3)
     while x1<250
@@ -324,6 +397,19 @@ sub house(r,c,b)
   if c<5 then call hchar(r*5+1,c*7+1,b+2) :: call hchar(r*5+2,c*7+1,b+3) :: call hchar(r*5+3,c*7+1,b+4)
 subend
 
+
+sub pkstart(pk)
+  call sprite(#15,64,1,170,1,0,1+PK/2000)
+  call disply(23,1,"PK          ")
+subend
+
+sub pkplus(pk)
+  call position(#15,y,x)
+  if x=1 then subexit
+  pk = pk + x - 1
+  call locate(#15,170,1)
+  display at(23,1):PK
+subend
 
 
 
