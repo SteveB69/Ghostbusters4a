@@ -52,6 +52,11 @@ map:
   call char(116,#CHAR3064:4)
   call char(120,#CHAR3068:4)
   call char(124,#CHAR3072:8)
+  call char(132,#CHAR3100:2) // MM oben
+  call char(134,#CHAR3104:2)
+  call char(136,#CHAR3102:2) // MM unten 102,106
+  call char(138,#CHAR3106:2)
+
   call color2(13,2,2,14,2,2,15,2,2,16,2,2)
   call color2(17,2,2,31,2,2)
   call hchar(1,1,16,768)
@@ -69,7 +74,7 @@ map:
   call color2(17,2,12,31,16,2)
   call pkstart(pk)
   Ghost=16 :: GY = 0
-  dr = 0
+  dr = 0 :: pkmm = 5000 + 500*rnd
   x1=dx1 :: y1=dy1
   repeat
     call position(#3,i,j)
@@ -80,10 +85,10 @@ map:
     call gchar(y1/8+1-(y/2),max(x1/8+1+(x/2),1),e)
     if e=16 then x1=x1+x :: y1=y1-y ELSE gosub CalcHouse
     if e=16 and x+y<>0 then dr=dr+1
-    // display at(23,1):dr
     call pkplus(pk)
     if pk>10 and GY=0 and RND*200<PK and ghost<26 then gosub startghost
     if GY>0 then gosub MoveGhost
+    if pk>pkmm then gosub Marshmallow
     call locate(#1,y1,x1,#2,y1,x1)
     call key(1,k,s)
   until house>0 and s<>0
@@ -127,6 +132,33 @@ MoveGhost:
   if GC then GY=0 :: GEnc(ghost-16)=dr :: Ghost=ghost+1
 return
 
+Marshmallow:
+  i=1 :: e=0
+  dx1=56*int(rnd*4)+38 :: dy1=int(rnd*3)+1
+  call sprite(#5,132,15,1,dx1,#6,136,15,17,dx1)
+  CALL DELAY(600)
+  repeat
+    call locate(#5,i*dy1,dx1,#6,i*dy1+16,dx1)
+    call key(3,k,s)
+    if k=66 then e=-1 :: display at(23,9):"BAIT!"
+    i=i+1
+    call delay(30)
+    call pkplus(pk)
+  until i>40
+  if e then MarshmallowEnd
+    for i=1 to 10
+      call char(136,#CHAR3108:4)
+      call delay(250)
+      call char(136,#CHAR3102:2,138,#CHAR3106:2)
+      call delay(250)
+      call pkplus(pk)
+    next i
+    ac=max(0,ac-20)
+    pkmm=pkmm+500+rnd*1000
+  MarshmallowEnd:
+  call delsprite(#5,#6)
+  CALL HCHAR(23,11,32,5)
+return
 
 drive:
   call clear
@@ -416,7 +448,7 @@ sub pkplus(pk)
   if x=1 then subexit
   pk = pk + x - 1
   call locate(#15,170,1)
-  display at(23,1):PK
+  display at(23,1):PK;
 subend
 
 
