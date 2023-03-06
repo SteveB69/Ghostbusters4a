@@ -44,7 +44,10 @@ init:
   next i
  dy1 = 145 :: dx1 = 121
  BL(15)=1
+ AC = 100  // Account: $ / 100
 return
+
+// *** MAP ***
 
 map:
   call clear
@@ -85,7 +88,7 @@ map:
     call gchar(y1/8+1-(y/2),max(x1/8+1+(x/2),1),e)
     if e=16 then x1=x1+x :: y1=y1-y ELSE gosub CalcHouse
     if e=16 and x+y<>0 then dr=dr+1
-    call pkplus(pk)
+    call pkplus(pk,ac)
     if pk>10 and GY=0 and RND*200<PK and ghost<26 then gosub startghost
     if GY>0 then gosub MoveGhost
     if pk>pkmm then gosub Marshmallow
@@ -143,7 +146,7 @@ Marshmallow:
     if k=66 then e=-1 :: display at(23,9):"BAIT!"
     i=i+1
     call delay(30)
-    call pkplus(pk)
+    call pkplus(pk,ac)
   until i>40
   if e then MarshmallowEnd
     for i=1 to 10
@@ -151,7 +154,7 @@ Marshmallow:
       call delay(250)
       call char(136,#CHAR3102:2,138,#CHAR3106:2)
       call delay(250)
-      call pkplus(pk)
+      call pkplus(pk,ac)
     next i
     ac=max(0,ac-20)
     pkmm=pkmm+500+rnd*1000
@@ -159,6 +162,8 @@ Marshmallow:
   call delsprite(#5,#6)
   CALL HCHAR(23,11,32,5)
 return
+
+// *** DRIVE ***
 
 drive:
   call clear
@@ -197,7 +202,7 @@ drive:
   gy=1
   gz=15
   dr2=25
-  verz=40
+  verz=20
 
   call pkstart(pk)
 
@@ -230,7 +235,7 @@ drive:
     end else GP=0
     if my>180 and my<200 then pk=pk+100 :: call sprite(#1,124,16,194,1,0,0)
     call delay(verz)
-    dr2=dr2-1 :: call pkplus(pk)
+    dr2=dr2-1 :: call pkplus(pk,ac)
     if dr2=0 then dr2=5 :: drc=drc+1
   until drc>dr and x1>=190 and verz>150
   call delay(2000)
@@ -244,6 +249,8 @@ return
 Ghostright:
   call char(124,#CHAR3072:4)
 return
+
+// *** HOUSE GHOST ***
 
 HouseGhost:
   call clear
@@ -274,6 +281,7 @@ HouseGhost:
   call sprite(#10,100,9,132,200)  // Buster 1
   call sprite(#12,108,13,50,150)  // Ghost
   call sprite(#13,112,11,140,200) // Trap
+  call pkstart(pk)
 
   // speech: He slimed me!
   a$=bin$("0498394c80e3752ab85705acfaae80955f1835538353ad25c0b7610cf8358301bfa513e0af7402fc9d4e805fda10705531cb33f37e4b75aac8dceb3cd49b3489ce16cb6e8ad85335264b288bc956f776ad1cda32d2938d6ae8f0084d3bea1133c2d56dab7bca")
@@ -300,19 +308,18 @@ HouseGhost:
     if state>3 then begin
       dx = gx - (x1+28 + (135-gy)/2)
       GBND=0
-      // display at(24,1):dx
       if dx<-5 and dx>-20 then gxd=5 :: call sound(-200,110,0) :: GBND=1
       if dx<-20 and dx>-40 then gxd=-5 :: call sound(-200,220,0)
 
       dx = gx - (x2 - (135-gy)/2)
-      // display at(24,24):dx;
       if dx<5 and dx>-20 then gxd=-5 :: call sound(-200,440,0) :: GBND = GBND+1
       if dx>5 and dx<15 then gxd=5  :: call sound(-200,880,0)
       if state<5 and x2-x1<125 then state=6 // streams crossed
     end
-    if GBND=2 then GXD=0 :: GYD = 10 // ::  display at(24,11):"BND"
+    if GBND=2 then GXD=0 :: GYD = 10
     if state<6 then call motion(#12,gyd,gxd)
-    call delay(50)
+    call pkplus(pk,ac)
+    call delay(40)
   until state>5
   if state=6 then gosub StreamsCrossed
   call delsprite(all)
@@ -377,6 +384,7 @@ StreamsCrossed:
   call disply(1,5,"You crossed the streams!")
   repeat
     call position(#12,gy,gx)
+    call pkplus(pk,ac)
   until gy<5 or gx>250
   call delsprite(all)
 return
@@ -400,11 +408,13 @@ State_Trap:
         bg$=seg$(bg$,1,len(bg$)-1)
       end
       call delay(40)
+      call pkplus(pk,ac)
     next try
     call delsprite(#12,#14,#1,#2,#3,#4,#5,#6)
     if state=8 then begin
       for i=1 to 132-gy
         call locate(#12,gy+i,gx+i*(x2-gx)/(132-gy))
+        call pkplus(pk,ac)
         call delay(40)
       next i
       call SAY("",sp$)
@@ -412,7 +422,7 @@ State_Trap:
       call motion(#12,-5,5)
       repeat
         call position(#12,gy,gx)
-        call pkplus(pk)
+        call pkplus(pk,ac)
       until gy<5 or gx>250
       pk=pk+300
       call delsprite(#12)
@@ -423,7 +433,8 @@ State_Trap:
       call locate(#10,132,x1)
       if x1=x2-40 then call pattern(#11,104)
       if x2<x1-30 then call locate(#11,132,x2) :: x2=x2+4
-      call delay(50)
+      call pkplus(pk,ac)
+      call delay(30)
     endwhile
     call delsprite(#10,#11,#13)
     state=7
@@ -441,15 +452,29 @@ subend
 sub pkstart(pk)
   call sprite(#15,64,1,170,1,0,1+PK/2000)
   call disply(23,1,"PK          ")
+  call disply(24,1,"$           ")
 subend
 
-sub pkplus(pk)
+
+sub pkplus(pk,ac)
   call position(#15,y,x)
   if x=1 then subexit
   pk = pk + x - 1
   call locate(#15,170,1)
   display at(23,1):PK;
+  display at(24,1):str$(AC)&"00";
 subend
+
+// CALL SAY stürzt compiliert ab
+// Kauf von Ausrüstung
+// Check ob Haus blinkt
+// neue blinkende Häuser
+// Traps zählen -> HQ
+// MIDI Track aufbereiten
+// Sound-Compiler und Auto-Player testen
+// Schluss-Szene Marshmallow Man
+// Account-Nummer
+
 
 
 
