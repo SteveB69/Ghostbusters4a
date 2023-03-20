@@ -9,6 +9,7 @@ gosub title
 gosub init
 
 repeat
+  gosub shop
   repeat
     gosub map
     gosub drive
@@ -38,7 +39,6 @@ return
 
 init:
   pk=0
-  ass(2)=1
   for i=0 to 29
     bl(i)=0
   next i
@@ -46,6 +46,38 @@ init:
  BL(15)=1
  AC = 100  // Account: $ / 100
 return
+
+// *** SHOP ***
+shop:
+  call clear
+  call magnify(3)
+  display at(1,10):"Equipment"
+  display at( 5,2):"Image Intensifier  $800"
+  display at( 7,2):"Bait               $400"
+  display at( 9,2):"Ghost Vacuum       $500"
+  display at(11,2):"Traps              $600 x 0"
+  display at(13,2):"Done Shopping"
+  display at(20,2):"Credit           $  "&str$(AC)&"00"
+  call char(116,#CHAR3112:4)
+  call sprite(#1,116,15,33,6)
+  call color2(18,4,2)
+  GY=33
+  repeat
+    call joyst(1,x,y)::call key(1,k,s)
+    gy=gy-y*4
+    call delay(250)
+    call locate(#1,gy,6)
+    gx=(gy-17)/16
+    if k=18 and gy<81 then ass(gx)=-(ass(gx)=0) :: call hchar(3+gx*2,30,167+ass(gx))
+    if k=18 and gy=81 then ass(gx)=-(ass(gx)+1)*(ass(gx)<9) :: call hchar(3+gx*2,30,48+ass(gx))
+    E = AC - ass(1)*8 - ass(2)*4 - ass(3)*5 - ass(4)*6
+    display at(20,22):str$(E)&"00"
+  until k=18 and gy=97
+  AC=E
+  call delsprite(#1)
+return
+
+
 
 // *** MAP ***
 
@@ -193,6 +225,7 @@ drive:
   call sprite( #9,116,10,143,50,#10,116,10,143, 96)
   call sprite(#11,120,16, 49,50,#12,120,16, 49,100)
   call sprite(#1,124,16,194,1,#2,128,3, 53,66)
+  if ass(3)=0 then call color(#2,1)
 
   call COLOR2(31,12,2)
 
@@ -226,7 +259,7 @@ drive:
     if drc=GEnc(ghost) then call sprite(#1,124,16,220,78+100*rnd,4,0)::ghost=ghost+1
     call key(1,k,s)
     call distance(#1,#2,GC) :: call position(#1,my,mx)
-    if k=18 and GC<400 and ass(2)=1 then begin
+    if k=18 and GC<400 and ass(3)=1 then begin
       GP=GP+1
       if int(RND*2)=1 then gosub Ghostleft else gosub Ghostright
       if my>50 then call locate(#1,my-2,mx)
@@ -417,7 +450,7 @@ State_Trap:
         call pkplus(pk,ac)
         call delay(40)
       next i
-      call SAY("",sp$)
+      // call SAY("",sp$)
       call color(#11,3)
       call motion(#12,-5,5)
       repeat
@@ -465,11 +498,10 @@ sub pkplus(pk,ac)
   display at(24,1):str$(AC)&"00";
 subend
 
-// CALL SAY stürzt compiliert ab
-// Kauf von Ausrüstung
+// CALL SAY stuerzt compiliert ab
 // Check ob Haus blinkt
-// neue blinkende Häuser
-// Traps zählen -> HQ
+// neue blinkende Haeuser
+// Traps zaehlen -> HQ
 // MIDI Track aufbereiten
 // Sound-Compiler und Auto-Player testen
 // Schluss-Szene Marshmallow Man
