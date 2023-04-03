@@ -34,7 +34,7 @@ title:
     call key(1,k,s1)
   until s=1 or s1=1
   call delsprite(all)
-  ac=100
+  ac=50
 return
 
 init:
@@ -44,7 +44,12 @@ init:
   next i
  dy1 = 145 :: dx1 = 121
  BL(15)=1
- AC = 100  // Account: $ / 100
+ HN=7+int(RND*3)*6+INT(RND*4)
+ HP=150
+ HQ=0
+ AC = 50  // Account: $ / 50 (=5.000$)
+ for i=1 to 4 :: ASS(i)=0 :: next i
+ //ASS(4)=5
 return
 
 // *** SHOP ***
@@ -52,10 +57,10 @@ shop:
   call clear
   call magnify(3)
   display at(1,10):"Equipment"
-  display at( 5,2):"Image Intensifier  $800"
-  display at( 7,2):"Bait               $400"
-  display at( 9,2):"Ghost Vacuum       $500"
-  display at(11,2):"Traps              $600 x 0"
+  display at( 5,2):"Image Intensifier  $800" // 1
+  display at( 7,2):"Bait               $400" // 2
+  display at( 9,2):"Ghost Vacuum       $500" // 3
+  display at(11,2):"Traps              $600 x 0" // 4
   display at(13,2):"Done Shopping"
   display at(20,2):"Credit           $  "&str$(AC)&"00"
   call char(116,#CHAR3112:4)
@@ -63,15 +68,26 @@ shop:
   call color2(18,4,2)
   GY=33
   repeat
+    call key(1,k,s)
+  until s=0
+  repeat
     call joyst(1,x,y)::call key(1,k,s)
     gy=gy-y*4
-    call delay(250)
+    if gy>97 or gy<33 then gy=33
+    if s<>0 or y<>0 then call delay(200)
     call locate(#1,gy,6)
     gx=(gy-17)/16
     if k=18 and gy<81 then ass(gx)=-(ass(gx)=0) :: call hchar(3+gx*2,30,167+ass(gx))
     if k=18 and gy=81 then ass(gx)=-(ass(gx)+1)*(ass(gx)<9) :: call hchar(3+gx*2,30,48+ass(gx))
     E = AC - ass(1)*8 - ass(2)*4 - ass(3)*5 - ass(4)*6
     display at(20,22):str$(E)&"00"
+    if k=18 and gy=97 and E<0 then begin
+      display at(17,4):"Insufficient funding!"
+      call sound(600,110,0,220,4,440,8)
+      call delay(2000)
+      call hchar(17,1,32,32)
+      k=0
+    end
   until k=18 and gy=97
   AC=E
   call delsprite(#1)
@@ -111,6 +127,7 @@ map:
   Ghost=16 :: GY = 0
   dr = 0 :: pkmm = 5000 + 500*rnd
   x1=dx1 :: y1=dy1
+  if hq=1 then display at(23,11):"Go to HQ!"
   repeat
     call position(#3,i,j)
     if j<128 then call color2(15,2,10,16,2,10) else call color2(15,2,13,16,2,13)
@@ -124,19 +141,20 @@ map:
     if pk>10 and GY=0 and RND*200<PK and ghost<26 then gosub startghost
     if GY>0 then gosub MoveGhost
     if pk>pkmm then gosub Marshmallow
+    if pk>=hp then gosub StartBlink
     call locate(#1,y1,x1,#2,y1,x1)
     call key(1,k,s)
-  until house>0 and s<>0
+  until (house>0 and s<>0 and HQ=0) OR (house=26 and s<>0 and HQ=1)
   call delsprite(all)
   dx1=x1 :: dy1=y1
 return
 
 CalcHouse:
   house=0
-  if y= 4 then house=((y1-25)/40)*6 + (x1+19)/56 + 1
-  if y=-4 then house=((y1+15)/40)*6 + (x1+19)/56 + 1
-  if x= 4 then house=((y1-5)/40)*6  + (x1-9)/56 + 2
-  if x=-4 then house=((y1-5)/40)*6  + (x1-9)/56 + 1
+  if y= 4 then house=((y1-25)/40)*6 + (x1+19)/56 // + 1
+  if y=-4 then house=((y1+15)/40)*6 + (x1+19)/56 // + 1
+  if x= 4 then house=((y1-5)/40)*6  + (x1-9)/56 + 1
+  if x=-4 then house=((y1-5)/40)*6  + (x1-9)/56 // + 1
 RETURN
 
 startghost:
@@ -175,7 +193,7 @@ Marshmallow:
   repeat
     call locate(#5,i*dy1,dx1,#6,i*dy1+16,dx1)
     call key(3,k,s)
-    if k=66 then e=-1 :: display at(23,9):"BAIT!"
+    if k=66 and ass(2)=1 then e=-1 :: display at(23,9):"BAIT!"
     i=i+1
     call delay(30)
     call pkplus(pk,ac)
@@ -193,6 +211,15 @@ Marshmallow:
   MarshmallowEnd:
   call delsprite(#5,#6)
   CALL HCHAR(23,11,32,5)
+return
+
+StartBlink:
+  call drawhouse(HN,144)
+  bl(hn)=1
+  while bl(hn)=1
+    HN=7+int(RND*3)*6+INT(RND*4)
+  wend
+  HP=PK+100+int(rnd*200)
 return
 
 // *** DRIVE ***
@@ -311,8 +338,9 @@ HouseGhost:
     next j
   next i
 
+  if house=26 then gosub VisitHQ :: call delsprite(all) :: Return
+
   call sprite(#10,100,9,132,200)  // Buster 1
-  call sprite(#12,108,13,50,150)  // Ghost
   call sprite(#13,112,11,140,200) // Trap
   call pkstart(pk)
 
@@ -326,6 +354,9 @@ HouseGhost:
   gx=70
   gy=50
 
+  if bl(house)=0 then gosub NoGhostHere :: call delsprite(all) :: Return
+
+  call sprite(#12,108,13,50,150)  // Ghost
   repeat
     call key(1,k,s)
     if s=-1 then k=0
@@ -356,6 +387,21 @@ HouseGhost:
   until state>5
   if state=6 then gosub StreamsCrossed
   call delsprite(all)
+return
+
+VisitHQ:
+  call COLOR2(29,7,11) // bricks
+  call COLOR2(30,7,11) // bricks  132
+  call sprite(#10,104,9,110,120)
+  call sprite(#11,104,9,100,100)
+  call delay(500)
+  for i=1 to 120 step 4
+    call locate(#10,min(132,110+i/3),120+i)
+    call locate(#11,min(132,100+i/3),100+i)
+    call delay(80)
+    call pkplus(pk,ac)
+  next i
+  hq=0 :: TR=ass(4)
 return
 
 state_buster1bait:
@@ -420,6 +466,7 @@ StreamsCrossed:
     call pkplus(pk,ac)
   until gy<5 or gx>250
   call delsprite(all)
+  HQ=1
 return
 
 State_Trap:
@@ -457,7 +504,7 @@ State_Trap:
         call position(#12,gy,gx)
         call pkplus(pk,ac)
       until gy<5 or gx>250
-      pk=pk+300
+      pk=pk+300 :: HQ=1
       call delsprite(#12)
     end else call color(#13,3)
     while x1<250
@@ -469,9 +516,24 @@ State_Trap:
       call pkplus(pk,ac)
       call delay(30)
     endwhile
+    if HQ=0 then bl(house)=0 :: TR=TR-1 :: IF TR=0 then HQ=1
     call delsprite(#10,#11,#13)
     state=7
   end
+return
+
+NoGhostHere:
+  call sprite(#11,100,9,132,230)  // Buster 2
+  for i=1 to 70 step 4
+    call locate(#10,132,200-i,#13,140,200-i,#11,132,230-i)
+    call delay(80) :: call pkplus(pk,ac)
+  next i
+  call pattern(#10,104,#11,104)
+  call delay(1000)
+  for i=70 to 0 step -4
+    call locate(#10,132,200-i,#13,140,200-i,#11,132,230-i)
+    call delay(80) :: call pkplus(pk,ac)
+  next i
 return
 
 sub drawhouse(h,b)
@@ -499,9 +561,7 @@ sub pkplus(pk,ac)
 subend
 
 // CALL SAY stuerzt compiliert ab
-// Check ob Haus blinkt
-// neue blinkende Haeuser
-// Traps zaehlen -> HQ
+// Image Intensifier
 // MIDI Track aufbereiten
 // Sound-Compiler und Auto-Player testen
 // Schluss-Szene Marshmallow Man
