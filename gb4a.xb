@@ -3,440 +3,474 @@
 120 CALL LINK("SCREEN",2)
 130 call autochar
 140 dim GEnc(9),ass(4),bl(30)
-150 gosub 280
-160 gosub 390
-170 gosub 510
-180 gosub 810
-190 gosub 1760
-200 gosub 2400
-210 IF NOT (pk>=9999) THEN 180
-220 call clear
-230 display at(10,5):"Play again? (Y/N)"
-240 call key(3,k,s)
-250 IF NOT (s=1) THEN 240
-260 IF NOT (k=78) THEN 170
-270 end
-280 call magnify(4)
-290 call char(116,"000004080818383021030F1F0E0E0703000060381C3C7CF2E0C0860C1C38F0E0")
-300 call char(120,"010307050707078F5EF81000010000008000C040C0E0830C1F3A70F0E0000000")
-310 call sprite(#1,116,9, 50,112,#2,120,15, 50,112)
-320 display at(13,9):"Ghostbusters!"
-330 call key(3,k,s)
-340 call key(1,k,s1)
-350 IF NOT (s=1 or s1=1) THEN 330
-360 call delsprite(all)
-370 ac=50
-380 return
-390 pk=0
-400 for i=0 to 29
-410 bl(i)=0
-420 next i
-430 dy1 = 145 :: dx1 = 121
-440 BL(15)=1
-450 HN=7+int(RND*3)*6+INT(RND*4)
-460 HP=150
-470 HQ=0
-480 AC = 50
-490 for i=1 to 4 :: ASS(i)=0 :: next i
-500 return
-510 call clear
-520 call magnify(3)
-530 display at(1,10):"Equipment"
-540 display at( 5,2):"Image Intensifier  $800"
-550 display at( 7,2):"Bait               $400"
-560 display at( 9,2):"Ghost Vacuum       $500"
-570 display at(11,2):"Traps              $600 x 0"
-580 display at(13,2):"Done Shopping"
-590 display at(20,2):"Credit           $  "&str$(AC)&"00"
-600 call char(116,"0000000F0F0F0000000000000000000000080CFEFFFE0C080000000000000000")
-610 call sprite(#1,116,15,33,6)
-620 CALL LINK("COLOR2",18,4,2)
-630 GY=33
-640 call key(1,k,s)
-650 IF NOT (s=0) THEN 640
-660 call joyst(1,x,y)::call key(1,k,s)
-670 gy=gy-y*4
-680 if gy>97 or gy<33 then gy=33
-690 if s<>0 or y<>0 then CALL LINK("DELAY",200)
-700 call locate(#1,gy,6)
-710 gx=(gy-17)/16
-720 if k=18 and gy<81 then ass(gx)=-(ass(gx)=0) :: call hchar(3+gx*2,30,167+ass(gx))
-730 if k=18 and gy=81 then ass(gx)=-(ass(gx)+1)*(ass(gx)<9) :: call hchar(3+gx*2,30,48+ass(gx))
-740 E = AC - ass(1)*8 - ass(2)*4 - ass(3)*5 - ass(4)*6
-750 display at(20,22):str$(E)&"00"
-760 if k=18 and gy=97 and E<0 then GOSUB 20000
-770 IF NOT (k=18 and gy=97) THEN 660
-780 AC=E
-790 call delsprite(#1)
-800 return
-810 call clear
-820 call magnify(3)
-830 call char(116,"000004080818383021030F1F0E0E0703000060381C3C7CF2E0C0860C1C38F0E0")
-840 call char(120,"010307050707078F5EF81000010000008000C040C0E0830C1F3A70F0E0000000")
-850 call char(124,"1E0707060706071F7F6707071F1F78E00080C000C0C0F0FCFFC3C0C0C00000000001030003030F3FFFC303030300000078E0E060E060E0F8FEE6E0E0F8F81E07")
-860 call char(132,"00000000020F1F050706177BFCEBEF6F")
-870 call char(134,"0000000000C0E0A0E060E8DE3FD7F776")
-880 call char(136,"071F1F1E1E1E3C000000000000000000")
-890 call char(138,"E078FC3C3C1E00000000000000000000")
-900 CALL LINK("COLOR2",13,2,2,14,2,2,15,2,2,16,2,2)
-910 CALL LINK("COLOR2",17,2,2,31,2,2)
-920 call hchar(1,1,16,768)
-930 for i=0 to 29
-940 if BL(i)=0 then call drawhouse(i,128) else call drawhouse(i,144)
-950 next i
-960 for i=0 to 9 :: GEnc(i)=9999 :: next i
-970 for i=0 to 4 :: call hchar(21,11+i,160+i,1)::next i
-980 call hchar(1,1,32,64) :: call hchar(22,1,32,96)
-990 call hchar(2,19,137,1) :: call hchar(2,20,138,1) :: call hchar(2,21,139,1)
-1000 call magnify(3)
-1010 call sprite(#1,116,9,145,121,#2,120,15,145,121,#3,88,16,226,1,0,50)
-1020 CALL LINK("COLOR2",13,2,13,14,2,13,15,2,10,16,2,10)
-1030 CALL LINK("COLOR2",17,2,12,31,16,2)
-1040 call pkstart(pk)
-1050 Ghost=16 :: GY = 0
-1060 dr = 0 :: pkmm = 5000 + 500*rnd
-1070 x1=dx1 :: y1=dy1
-1080 if hq=1 then display at(23,11):"Go to HQ!"
-1090 call position(#3,i,j)
-1100 if j<128 then CALL LINK("COLOR2",15,2,10,16,2,10) else CALL LINK("COLOR2",15,2,13,16,2,13)
-1110 call mod(x1,28,mx) :: call mod(y1,20,my)
-1120 if mx=9 and my=5 then call joyst(1,x,y)
-1130 if x<>0 then y=0
-1140 call gchar(y1/8+1-(y/2),max(x1/8+1+(x/2),1),e)
-1150 if e=16 then x1=x1+x :: y1=y1-y ELSE gosub 1280
-1160 if e=16 and x+y<>0 then dr=dr+1
-1170 call pkplus(pk,ac)
-1180 if pk>10 and GY=0 and RND*200<PK and ghost<26 then gosub 1340
-1190 if GY>0 then gosub 1390
-1200 if pk>pkmm then gosub 1450
-1210 if pk>=hp then gosub 1690
-1220 call locate(#1,y1,x1,#2,y1,x1)
-1230 call key(1,k,s)
-1240 IF NOT ((house>0 and s<>0 and HQ=0) OR (house=26 and s<>0 and HQ=1)) THEN 1090
-1250 call delsprite(all)
-1260 dx1=x1 :: dy1=y1
-1270 return
-1280 house=0
-1290 if y= 4 then house=((y1-25)/40)*6 + (x1+19)/56
-1300 if y=-4 then house=((y1+15)/40)*6 + (x1+19)/56
-1310 if x= 4 then house=((y1-5)/40)*6  + (x1-9)/56 + 1
-1320 if x=-4 then house=((y1-5)/40)*6  + (x1-9)/56
-1330 RETURN
-1340 gz = int(rnd*4)
-1350 ON -(gz=0)-2*(gz=1)-3*(gz=2)-4*(gz=3) GOSUB 20060, 20080, 20100, 20120
-1360 call sprite(#ghost,124-4*(gx>50),15,gy,gx)
-1370 GS=50+int((10000-PK)/50) :: GP=0
-1380 return
-1390 GP=GP+1
-1400 call locate(#ghost,GY+GP*(9-GY)/GS,GX+GP*(160-GX)/GS)
-1410 if GP=GS then  call delsprite(#ghost):: GY=0 :: pk=pk+100
-1420 call coinc(#ghost,#1,10,GC)
-1430 if GC then GY=0 :: GEnc(ghost-16)=dr :: Ghost=ghost+1
-1440 return
-1450 i=1 :: e=0
-1460 dx1=56*int(rnd*4)+38 :: dy1=int(rnd*3)+1
-1470 call sprite(#5,132,15,1,dx1,#6,136,15,17,dx1)
-1480 CALL LINK("DELAY",600)
-1490 call locate(#5,i*dy1,dx1,#6,i*dy1+16,dx1)
-1500 call key(3,k,s)
-1510 if k=66 and ass(2)=1 then e=-1 :: display at(23,9):"BAIT!"
-1520 i=i+1
-1530 CALL LINK("DELAY",30)
-1540 call pkplus(pk,ac)
-1550 IF NOT (i>40) THEN 1490
-1560 if e then 1660
-1570 for i=1 to 10
-1580 call char(136,"071E3F3C3C7800000000000000000000E0F8F87878783C000000000000000000")
-1590 CALL LINK("DELAY",250)
-1600 call char(136,"071F1F1E1E1E3C000000000000000000",138,"E078FC3C3C1E00000000000000000000")
-1610 CALL LINK("DELAY",250)
-1620 call pkplus(pk,ac)
-1630 next i
-1640 ac=max(0,ac-20)
-1650 pkmm=pkmm+500+rnd*1000
-1660 call delsprite(#5,#6)
-1670 CALL HCHAR(23,11,32,5)
-1680 return
-1690 call drawhouse(HN,144)
-1700 bl(hn)=1
-1710 GOTO 1730
-1720 HN=7+int(RND*3)*6+INT(RND*4)
-1730 IF bl(hn)=1 THEN 1720
-1740 HP=PK+100+int(rnd*200)
-1750 return
-1760 call clear
-1770 call magnify(4)
-1780 call char( 92,"00007E7F7F7F7E7E7E7E7E7E7F7F3F18")
-1790 call char( 94,"00073FFFFFFFFFFFFFFFFFFFFFFFC000")
-1800 call char( 96,"00F0FEFFFFFFFFFFFFFFFFFFFFFF0100")
-1810 call char( 98,"00003FFFFFFFBFBFBFBFBFBFFFFFFE0C")
-1820 call char(100,"0C0E0F0E0E0E0F0E0E0E0E0F0E0E0E0E")
-1830 call char(102,"0000FFFF7F3FFF3F3F3F3FFF3F3F3F3F")
-1840 call char(104,"0000FFFFFFFEFFFEFEFEFEFFFEFEFEFE")
-1850 call char(106,"1838F8B83838F838383838F838383838")
-1860 call char(108,"0E0E1F3F7E7E6E6E6E6E6F6E7F7F0000")
-1870 call char(110,"3F3FFFFF3F3F3F3F3F3FE000FFC00000")
-1880 call char(112,"FEFEFFFFFEFEFEFEFEFE0300FF010000")
-1890 call char(114,"3838FCFE3F3F3B3B3B3BFB3BFFFF0000")
-1900 call sprite(#3, 92,15, 50,50,#4, 96,15, 50,82)
-1910 call sprite(#5,100,15, 82,50,#6,104,15, 82,82)
-1920 call sprite(#7,108,15,114,50,#8,112,15,114,82)
-1930 call char(116,"3F0C000000000000000000000000000000000000000000000000000000000000")
-1940 call char(120,"183C000000000000000000000000000000000000000000000000000000000000")
-1950 call char(124,"0001030003030F3FFFC303030300000078E0E060E060E0F8FEE6E0E0F8F81E07601018343A3D1E0F07010000000000000000000000008040A0BC7E2400000000")
-1960 call sprite( #9,116,10,143,50,#10,116,10,143, 96)
-1970 call sprite(#11,120,16, 49,50,#12,120,16, 49,100)
-1980 call sprite(#1,124,16,194,1,#2,128,3, 53,66)
-1990 if ass(3)=0 then call color(#2,1)
-2000 CALL LINK("COLOR2",31,12,2)
-2010 ghost=0
-2020 drc=0
-2030 x1=50
-2040 gy=1
-2050 gz=15
-2060 dr2=25
-2070 verz=20
-2080 call pkstart(pk)
-2090 call joyst(1,x,y)
-2100 if drc<dr then x1=x1+x/2 else x1=x1+2 :: verz=verz+2
-2110 if x1<1   then x1=2
-2120 if x1>190 then x1=190
-2130 x2=x1+32
-2140 call locate(#3,50,x1,#4,50,x2,#5,82,x1,#6,82,x2,#7,114,x1,#8,114,x2)
-2150 call locate(#9,143,x1,#10,143,x2+14,#11,49,x1,#12,49,x2+18,#2,53,x1+16)
-2160 if gy<14 then le=min(11,gy) else le=24-gy
-2170 call vchar(gy,9,16,le)
-2180 if x1<62  and x1>10 then call vchar(8, 9,32,11)
-2190 call vchar(gy,20,16,le)
-2200 if x1<150 and x1>98 then call vchar(8,20,32,11)
-2210 call vchar(gz,9,32,3) :: call vchar(gz,20,32,3)
-2220 if gy>23 then gy=1 else gy=gy+1
-2230 if gz>23 then gz=1 else gz=gz+1
-2240 if drc=GEnc(ghost) then call sprite(#1,124,16,220,78+100*rnd,4,0)::ghost=ghost+1
-2250 call key(1,k,s)
-2260 call distance(#1,#2,GC) :: call position(#1,my,mx)
-2270 if k=18 and GC<400 and ass(3)=1 then GOSUB 20140 else GP=0
-2280 if my>180 and my<200 then pk=pk+100 :: call sprite(#1,124,16,194,1,0,0)
-2290 CALL LINK("DELAY",verz)
-2300 dr2=dr2-1 :: call pkplus(pk,ac)
-2310 if dr2=0 then dr2=5 :: drc=drc+1
-2320 IF NOT (drc>dr and x1>=190 and verz>150) THEN 2090
-2330 CALL LINK("DELAY",2000)
-2340 call delsprite(all)
-2350 return
-2360 call char(124,"0001030003030F3FFFC303030300000078E0E060E060E0F8FEE6E0E0F8F81E07")
-2370 return
-2380 call char(124,"1E0707060706071F7F6707071F1F78E00080C000C0C0F0FCFFC3C0C0C0000000")
-2390 return
-2400 call clear
-2410 call magnify(4)
-2420 call char( 92,"000000000000000000000000000000008080C0C06060303018180C0C060603030101030306060C0C181830306060C0C080800000000000000000000000000000")
-2430 call char(100,"0303231109070303030202040D000000808080A0A0A0A0A0808080808000000001010105050505050101010101000000C0C0C48890E0C0C0C0404020B0000000")
-2440 call char(108,"01070D1F1908080E3F2F2F272733010000C060F0302020E0F0D0D090B01080C03F40FFFF0000000000000000000000000080C0C0000000000000000000000000")
-2450 call char(116,"0000000000000000000000041F377CFF0000000000000000000000D07CEEDEFF60C0C0C0C0C0E0783F0F030303030303060303030303071EFCF0C0C0C0C0C0C0")
-2460 CALL LINK("COLOR2",29,5,15)
-2470 CALL LINK("COLOR2",30,5,15)
-2480 CALL LINK("COLOR2",31,12,2)
-2490 for i=4 to 15
-2500 call hchar(i,5,11,24)
-2510 next i
-2520 call hchar(16,1,10,32)
-2530 for i=5 to 13 step 4
-2540 for j=6 to 27 step 4
-2550 call hchar(i,j,6,1)
-2560 call hchar(i+1,j,7,1)
-2570 call hchar(i,j+1,8,1)
-2580 call hchar(i+1,j+1,9,1)
-2590 next j
-2600 next i
-2610 if house=26 then gosub 2940 :: call delsprite(all) :: Return
-2620 call sprite(#10,100,9,132,200)
-2630 call sprite(#13,112,11,140,200)
-2640 call pkstart(pk)
-2650 a$=bin$("0498394c80e3752ab85705acfaae80955f1835538353ad25c0b7610cf8358301bfa513e0af7402fc9d4e805fda10705531cb33f37e4b75aac8dceb3cd49b3489ce16cb6e8ad85335264b288bc956f776ad1cda32d2938d6ae8f0084d3bea1133c2d56dab7bca")
-2660 b$=bin$("34956da5ed294254b785b6250e4ddf22f062a93a3a31a9a3f4d8543b046cd22d2b6c23b031d3887083c042d56a3a2923472a668fac0ced2d5cc5fa88718c080eed2bc6f17248bc0b01c66e47c02eee08d8a91c01cb972360bb72046c9f8e80edca10b06c28")
-2670 sp$=chr$(96) & chr$(0) & chr$(LEN(a$)+LEN(b$)) & a$ & b$
-2680 state=1
-2690 x=200
-2700 gx=70
-2710 gy=50
-2720 if bl(house)=0 then gosub 3650 :: call delsprite(all) :: Return
-2730 call sprite(#12,108,13,50,150)
-2740 call key(1,k,s)
-2750 if s=-1 then k=0
-2760 call joyst(1,jx,jy)
-2770 on state gosub 3070,3160,3260,3400,3590
-2780 gxd = gxd + (rnd*11)-5
-2790 gyd = gyd + (rnd*11)-5
-2800 call position(#12,gy,gx)
-2810 if gx<30  then gxd=rnd*10+1
-2820 if gx>200 then gxd=-rnd*10-1
-2830 if gy<30  then gyd=rnd*10+1
-2840 if gy>70  then gyd=-rnd*10-1
-2850 if state>3 then GOSUB 20200
-2860 if GBND=2 then GXD=0 :: GYD = 10
-2870 if state<6 then call motion(#12,gyd,gxd)
-2880 call pkplus(pk,ac)
-2890 CALL LINK("DELAY",40)
-2900 IF NOT (state>5) THEN 2740
-2910 if state=6 then gosub 3490
-2920 call delsprite(all)
-2930 return
-2940 CALL LINK("COLOR2",29,7,11)
-2950 CALL LINK("COLOR2",30,7,11)
-2960 call sprite(#10,104,9,110,120)
-2970 call sprite(#11,104,9,100,100)
-2980 CALL LINK("DELAY",500)
-2990 for i=1 to 120 step 4
-3000 call locate(#10,min(132,110+i/3),120+i)
-3010 call locate(#11,min(132,100+i/3),100+i)
-3020 CALL LINK("DELAY",80)
-3030 call pkplus(pk,ac)
-3040 next i
-3050 hq=0 :: TR=ass(4)
-3060 return
-3070 x=max(x+jx,4)
-3080 if jx<>0 then call pattern(#10,100-4*(jx=4))
-3090 call locate(#10,132,x)
-3100 call locate(#13,140,x)
-3110 if k<>18 then return
-3120 trx = int(x/8)*8+3
-3130 call locate(#13,153,trx)
-3140 state = state + 1
-3150 return
-3160 x=max(x+jx,4)
-3170 if jx<>0 then call pattern(#10,100-4*(jx=4))
-3180 call locate(#10,132,x)
-3190 if k<>18 then return
-3200 call pattern(#10,104)
-3210 call sprite(#11,100,9,132,200)
-3220 x1=x
-3230 x=200
-3240 state = state + 1
-3250 return
-3260 x=x+jx
-3270 if jx<>0 then call pattern(#11,100-4*(jx=4))
-3280 call locate(#11,132,x)
-3290 if k<>18 then return
-3300 call pattern(#11,100)
-3310 x2 = x
-3320 call sprite(#1,94,4,40,x2-60)
-3330 call sprite(#2,94,4,72,x2-44)
-3340 call sprite(#3,94,4,104,x2-28)
-3350 call sprite(#4,98,4,40,x1+60)
-3360 call sprite(#5,98,4,72,x1+44)
-3370 call sprite(#6,98,4,104,x1+28)
-3380 state = state + 1
-3390 return
-3400 x1=x1-4*(jx=4)
-3410 x2=x2+4*(jx=-4)
-3420 if jx=4  then call locate(#10,132,x1,#4,40,x1+60,#5,72,x1+44,#6,104,x1+28)
-3430 if jx=-4 then call locate(#11,132,x2,#1,40,x2-60,#2,72,x2-44,#3,104,x2-28)
-3440 if k<>18 then return
-3450 state=5
-3460 try=123
-3470 call sprite(#14,120,12,123,trx-6)
-3480 return
-3490 call delsprite(#1,#2,#3,#4,#5,#6)
-3500 call pattern(#10,116,#11,116)
-3510 call motion(#12,-5,5)
-3520 CALL LINK("DISPLY",1,5,"You crossed the streams!")
-3530 call position(#12,gy,gx)
-3540 call pkplus(pk,ac)
-3550 IF NOT (gy<5 or gx>250) THEN 3530
-3560 call delsprite(all)
-3570 HQ=1
-3580 return
-3590 if try >20 then try=try-2 else state=8
-3600 call locate(#14,try,trx-6)
-3610 if try-int(try/8)*8=1 then GOSUB 20290
-3620 call distance(#12,#14,e)
-3630 if e<800 or state=8 then GOSUB 20330
-3640 return
-3650 call sprite(#11,100,9,132,230)
-3660 for i=1 to 70 step 4
-3670 call locate(#10,132,200-i,#13,140,200-i,#11,132,230-i)
-3680 CALL LINK("DELAY",80) :: call pkplus(pk,ac)
-3690 next i
-3700 call pattern(#10,104,#11,104)
-3710 CALL LINK("DELAY",1000)
-3720 for i=70 to 0 step -4
-3730 call locate(#10,132,200-i,#13,140,200-i,#11,132,230-i)
-3740 CALL LINK("DELAY",80) :: call pkplus(pk,ac)
-3750 next i
+150 gosub 560
+160 gosub 670
+170 gosub 290
+180 gosub 790
+190 gosub 1090
+200 gosub 2040
+210 gosub 2680
+220 IF NOT (pk>=9999) THEN 190
+230 call clear
+240 display at(10,5):"Play again? (Y/N)"
+250 call key(3,k,s)
+260 IF NOT (s=1) THEN 250
+270 IF NOT (k=78) THEN 170
+280 end
+290 call magnify(4)
+300 call clear
+310 CALL LINK("COLOR2",18,4,13)
+320 call char(112,"80",113,"",114,"",115,"")
+330 call char(116,"0003000303030300030F33FCFFCF0F0F00C000C0C0C0C000C0FCCC3FF3F0F0F00F0F0F0C0C0C0C0C0C3C000000000000F0FCFCFC30303C000000000000000000")
+340 call char(124,"0F3F3F3F0C0C3C000000000000000000F0F0F03030303030303C0000000000003CCFFF0F0303000000000000000000003CF3FFF0C0C000000000000000000000")
+350 CALL LINK("CHAR2",176,"00000000000804020100000000000103000000E0E0E07070F0F0F0E0A0A020600000000E0E8E47271F0F0F0E0A0A1236")
+360 CALL LINK("COLOR2",19,9,1)
+370 call sprite(#1,116,16, 100,40,#2,120,16,132,40,#3,128,13,153,40)
+380 call sprite(#4,112,11,18*8-4,28*8-3)
+390 call hchar(20,1,169,32) :: call hchar(21,1,170,32)
+400 call hchar(18,28,180,1)
+410 call hchar(19,28,181,1)
+420 y1 = 100 :: x1 = 40 :: e = -50 :: gx=1
+430 x2 = 56 :: s1=0
+440 y1 = y1 + e/75 :: e = e+1 :: x1=x1+gx
+450 call locate(#1,y1-2,x1,#2,y1+32,x1,#3,153,x1)
+460 if e=51 then e=-50 :: gx=-gx
+470 if e=0 then call pattern(#2,122+gx*2)
+480 call joyst(1,x,y)
+490 if x<>0 then GOSUB 20000
+500 if x2<11 or x2>42 or (x2<33 and x2>19) then k=0 else call coinc(all,k)
+510 if k<>0 then call sound(-300,440,0)
+520 call key(1,k,s)
+530 IF NOT (s<>0) THEN 440
+540 call delsprite(all)
+550 return
+560 call magnify(4)
+570 call char(116,"000004080818383021030F1F0E0E0703000060381C3C7CF2E0C0860C1C38F0E0")
+580 call char(120,"010307050707078F5EF81000010000008000C040C0E0830C1F3A70F0E0000000")
+590 call sprite(#1,116,9, 50,112,#2,120,15, 50,112)
+600 display at(13,9):"Ghostbusters!"
+610 call key(3,k,s)
+620 call key(1,k,s1)
+630 IF NOT (s=1 or s1=1) THEN 610
+640 call delsprite(all)
+650 ac=50
+660 return
+670 pk=0
+680 for i=0 to 29
+690 bl(i)=0
+700 next i
+710 dy1 = 145 :: dx1 = 121
+720 BL(15)=1
+730 HN=7+int(RND*3)*6+INT(RND*4)
+740 HP=150
+750 HQ=0
+760 AC = 50
+770 for i=1 to 4 :: ASS(i)=0 :: next i
+780 return
+790 call clear
+800 call magnify(3)
+810 display at(1,10):"Equipment"
+820 display at( 5,2):"Image Intensifier  $800"
+830 display at( 7,2):"Bait               $400"
+840 display at( 9,2):"Ghost Vacuum       $500"
+850 display at(11,2):"Traps              $600 x 0"
+860 display at(13,2):"Done Shopping"
+870 display at(20,2):"Credit           $  "&str$(AC)&"00"
+880 call char(116,"0000000F0F0F0000000000000000000000080CFEFFFE0C080000000000000000")
+890 call sprite(#1,116,15,33,6)
+900 CALL LINK("COLOR2",18,4,2)
+910 GY=33
+920 call key(1,k,s)
+930 IF NOT (s=0) THEN 920
+940 call joyst(1,x,y)::call key(1,k,s)
+950 gy=gy-y*4
+960 if gy>97 or gy<33 then gy=33
+970 if s<>0 or y<>0 then CALL LINK("DELAY",200)
+980 call locate(#1,gy,6)
+990 gx=(gy-17)/16
+1000 if k=18 and gy<81 then ass(gx)=-(ass(gx)=0) :: call hchar(3+gx*2,30,167+ass(gx))
+1010 if k=18 and gy=81 then ass(gx)=-(ass(gx)+1)*(ass(gx)<9) :: call hchar(3+gx*2,30,48+ass(gx))
+1020 E = AC - ass(1)*8 - ass(2)*4 - ass(3)*5 - ass(4)*6
+1030 display at(20,22):str$(E)&"00"
+1040 if k=18 and gy=97 and E<0 then GOSUB 20060
+1050 IF NOT (k=18 and gy=97) THEN 940
+1060 AC=E
+1070 call delsprite(#1)
+1080 return
+1090 call clear
+1100 call magnify(3)
+1110 call char(116,"000004080818383021030F1F0E0E0703000060381C3C7CF2E0C0860C1C38F0E0")
+1120 call char(120,"010307050707078F5EF81000010000008000C040C0E0830C1F3A70F0E0000000")
+1130 call char(124,"1E0707060706071F7F6707071F1F78E00080C000C0C0F0FCFFC3C0C0C00000000001030003030F3FFFC303030300000078E0E060E060E0F8FEE6E0E0F8F81E07")
+1140 call char(132,"00000000020F1F050706177BFCEBEF6F")
+1150 call char(134,"0000000000C0E0A0E060E8DE3FD7F776")
+1160 call char(136,"071F1F1E1E1E3C000000000000000000")
+1170 call char(138,"E078FC3C3C1E00000000000000000000")
+1180 CALL LINK("COLOR2",13,2,2,14,2,2,15,2,2,16,2,2)
+1190 CALL LINK("COLOR2",17,2,2,31,2,2)
+1200 call hchar(1,1,16,768)
+1210 for i=0 to 29
+1220 if BL(i)=0 then call drawhouse(i,128) else call drawhouse(i,144)
+1230 next i
+1240 for i=0 to 9 :: GEnc(i)=9999 :: next i
+1250 for i=0 to 4 :: call hchar(21,11+i,160+i,1)::next i
+1260 call hchar(1,1,32,64) :: call hchar(22,1,32,96)
+1270 call hchar(2,19,137,1) :: call hchar(2,20,138,1) :: call hchar(2,21,139,1)
+1280 call magnify(3)
+1290 call sprite(#1,116,9,145,121,#2,120,15,145,121,#3,88,16,226,1,0,50)
+1300 CALL LINK("COLOR2",13,2,13,14,2,13,15,2,10,16,2,10)
+1310 CALL LINK("COLOR2",17,2,12,31,16,2)
+1320 call pkstart(pk)
+1330 Ghost=16 :: GY = 0
+1340 dr = 0 :: pkmm = 5000 + 500*rnd
+1350 x1=dx1 :: y1=dy1
+1360 if hq=1 then display at(23,11):"Go to HQ!"
+1370 call position(#3,i,j)
+1380 if j<128 then CALL LINK("COLOR2",15,2,10,16,2,10) else CALL LINK("COLOR2",15,2,13,16,2,13)
+1390 call mod(x1,28,mx) :: call mod(y1,20,my)
+1400 if mx=9 and my=5 then call joyst(1,x,y)
+1410 if x<>0 then y=0
+1420 call gchar(y1/8+1-(y/2),max(x1/8+1+(x/2),1),e)
+1430 if e=16 then x1=x1+x :: y1=y1-y ELSE gosub 1560
+1440 if e=16 and x+y<>0 then dr=dr+1
+1450 call pkplus(pk,ac)
+1460 if pk>10 and GY=0 and RND*200<PK and ghost<26 then gosub 1620
+1470 if GY>0 then gosub 1670
+1480 if pk>pkmm then gosub 1730
+1490 if pk>=hp then gosub 1970
+1500 call locate(#1,y1,x1,#2,y1,x1)
+1510 call key(1,k,s)
+1520 IF NOT ((house>0 and s<>0 and HQ=0) OR (house=26 and s<>0 and HQ=1)) THEN 1370
+1530 call delsprite(all)
+1540 dx1=x1 :: dy1=y1
+1550 return
+1560 house=0
+1570 if y= 4 then house=((y1-25)/40)*6 + (x1+19)/56
+1580 if y=-4 then house=((y1+15)/40)*6 + (x1+19)/56
+1590 if x= 4 then house=((y1-5)/40)*6  + (x1-9)/56 + 1
+1600 if x=-4 then house=((y1-5)/40)*6  + (x1-9)/56
+1610 RETURN
+1620 gz = int(rnd*4)
+1630 ON -(gz=0)-2*(gz=1)-3*(gz=2)-4*(gz=3) GOSUB 20120, 20140, 20160, 20180
+1640 call sprite(#ghost,124-4*(gx>50),15,gy,gx)
+1650 GS=50+int((10000-PK)/50) :: GP=0
+1660 return
+1670 GP=GP+1
+1680 call locate(#ghost,GY+GP*(9-GY)/GS,GX+GP*(160-GX)/GS)
+1690 if GP=GS then  call delsprite(#ghost):: GY=0 :: pk=pk+100
+1700 call coinc(#ghost,#1,10,GC)
+1710 if GC then GY=0 :: GEnc(ghost-16)=dr :: Ghost=ghost+1
+1720 return
+1730 i=1 :: e=0
+1740 dx1=56*int(rnd*4)+38 :: dy1=int(rnd*3)+1
+1750 call sprite(#5,132,15,1,dx1,#6,136,15,17,dx1)
+1760 CALL LINK("DELAY",600)
+1770 call locate(#5,i*dy1,dx1,#6,i*dy1+16,dx1)
+1780 call key(3,k,s)
+1790 if k=66 and ass(2)=1 then e=-1 :: display at(23,9):"BAIT!"
+1800 i=i+1
+1810 CALL LINK("DELAY",30)
+1820 call pkplus(pk,ac)
+1830 IF NOT (i>40) THEN 1770
+1840 if e then 1940
+1850 for i=1 to 10
+1860 call char(136,"071E3F3C3C7800000000000000000000E0F8F87878783C000000000000000000")
+1870 CALL LINK("DELAY",250)
+1880 call char(136,"071F1F1E1E1E3C000000000000000000",138,"E078FC3C3C1E00000000000000000000")
+1890 CALL LINK("DELAY",250)
+1900 call pkplus(pk,ac)
+1910 next i
+1920 ac=max(0,ac-20)
+1930 pkmm=pkmm+500+rnd*1000
+1940 call delsprite(#5,#6)
+1950 CALL HCHAR(23,11,32,5)
+1960 return
+1970 call drawhouse(HN,144)
+1980 bl(hn)=1
+1990 GOTO 2010
+2000 HN=7+int(RND*3)*6+INT(RND*4)
+2010 IF bl(hn)=1 THEN 2000
+2020 HP=PK+100+int(rnd*200)
+2030 return
+2040 call clear
+2050 call magnify(4)
+2060 call char( 92,"00007E7F7F7F7E7E7E7E7E7E7F7F3F18")
+2070 call char( 94,"00073FFFFFFFFFFFFFFFFFFFFFFFC000")
+2080 call char( 96,"00F0FEFFFFFFFFFFFFFFFFFFFFFF0100")
+2090 call char( 98,"00003FFFFFFFBFBFBFBFBFBFFFFFFE0C")
+2100 call char(100,"0C0E0F0E0E0E0F0E0E0E0E0F0E0E0E0E")
+2110 call char(102,"0000FFFF7F3FFF3F3F3F3FFF3F3F3F3F")
+2120 call char(104,"0000FFFFFFFEFFFEFEFEFEFFFEFEFEFE")
+2130 call char(106,"1838F8B83838F838383838F838383838")
+2140 call char(108,"0E0E1F3F7E7E6E6E6E6E6F6E7F7F0000")
+2150 call char(110,"3F3FFFFF3F3F3F3F3F3FE000FFC00000")
+2160 call char(112,"FEFEFFFFFEFEFEFEFEFE0300FF010000")
+2170 call char(114,"3838FCFE3F3F3B3B3B3BFB3BFFFF0000")
+2180 call sprite(#3, 92,15, 50,50,#4, 96,15, 50,82)
+2190 call sprite(#5,100,15, 82,50,#6,104,15, 82,82)
+2200 call sprite(#7,108,15,114,50,#8,112,15,114,82)
+2210 call char(116,"3F0C000000000000000000000000000000000000000000000000000000000000")
+2220 call char(120,"183C000000000000000000000000000000000000000000000000000000000000")
+2230 call char(124,"0001030003030F3FFFC303030300000078E0E060E060E0F8FEE6E0E0F8F81E07601018343A3D1E0F07010000000000000000000000008040A0BC7E2400000000")
+2240 call sprite( #9,116,10,143,50,#10,116,10,143, 96)
+2250 call sprite(#11,120,16, 49,50,#12,120,16, 49,100)
+2260 call sprite(#1,124,16,194,1,#2,128,3, 53,66)
+2270 if ass(3)=0 then call color(#2,1)
+2280 CALL LINK("COLOR2",31,12,2)
+2290 ghost=0
+2300 drc=0
+2310 x1=50
+2320 gy=1
+2330 gz=15
+2340 dr2=25
+2350 verz=20
+2360 call pkstart(pk)
+2370 call joyst(1,x,y)
+2380 if drc<dr then x1=x1+x/2 else x1=x1+2 :: verz=verz+2
+2390 if x1<1   then x1=2
+2400 if x1>190 then x1=190
+2410 x2=x1+32
+2420 call locate(#3,50,x1,#4,50,x2,#5,82,x1,#6,82,x2,#7,114,x1,#8,114,x2)
+2430 call locate(#9,143,x1,#10,143,x2+14,#11,49,x1,#12,49,x2+18,#2,53,x1+16)
+2440 if gy<14 then le=min(11,gy) else le=24-gy
+2450 call vchar(gy,9,16,le)
+2460 if x1<62  and x1>10 then call vchar(8, 9,32,11)
+2470 call vchar(gy,20,16,le)
+2480 if x1<150 and x1>98 then call vchar(8,20,32,11)
+2490 call vchar(gz,9,32,3) :: call vchar(gz,20,32,3)
+2500 if gy>23 then gy=1 else gy=gy+1
+2510 if gz>23 then gz=1 else gz=gz+1
+2520 if drc=GEnc(ghost) then call sprite(#1,124,16,220,78+100*rnd,4,0)::ghost=ghost+1
+2530 call key(1,k,s)
+2540 call distance(#1,#2,GC) :: call position(#1,my,mx)
+2550 if k=18 and GC<400 and ass(3)=1 then GOSUB 20200 else GP=0
+2560 if my>180 and my<200 then pk=pk+100 :: call sprite(#1,124,16,194,1,0,0)
+2570 CALL LINK("DELAY",verz)
+2580 dr2=dr2-1 :: call pkplus(pk,ac)
+2590 if dr2=0 then dr2=5 :: drc=drc+1
+2600 IF NOT (drc>dr and x1>=190 and verz>150) THEN 2370
+2610 CALL LINK("DELAY",2000)
+2620 call delsprite(all)
+2630 return
+2640 call char(124,"0001030003030F3FFFC303030300000078E0E060E060E0F8FEE6E0E0F8F81E07")
+2650 return
+2660 call char(124,"1E0707060706071F7F6707071F1F78E00080C000C0C0F0FCFFC3C0C0C0000000")
+2670 return
+2680 call clear
+2690 call magnify(4)
+2700 call char( 92,"000000000000000000000000000000008080C0C06060303018180C0C060603030101030306060C0C181830306060C0C080800000000000000000000000000000")
+2710 call char(100,"0303231109070303030202040D000000808080A0A0A0A0A0808080808000000001010105050505050101010101000000C0C0C48890E0C0C0C0404020B0000000")
+2720 call char(108,"01070D1F1908080E3F2F2F272733010000C060F0302020E0F0D0D090B01080C03F40FFFF0000000000000000000000000080C0C0000000000000000000000000")
+2730 call char(116,"0000000000000000000000041F377CFF0000000000000000000000D07CEEDEFF60C0C0C0C0C0E0783F0F030303030303060303030303071EFCF0C0C0C0C0C0C0")
+2740 CALL LINK("COLOR2",29,5,15)
+2750 CALL LINK("COLOR2",30,5,15)
+2760 CALL LINK("COLOR2",31,12,2)
+2770 for i=4 to 15
+2780 call hchar(i,5,11,24)
+2790 next i
+2800 call hchar(16,1,10,32)
+2810 for i=5 to 13 step 4
+2820 for j=6 to 27 step 4
+2830 call hchar(i,j,6,1)
+2840 call hchar(i+1,j,7,1)
+2850 call hchar(i,j+1,8,1)
+2860 call hchar(i+1,j+1,9,1)
+2870 next j
+2880 next i
+2890 if house=26 then gosub 3220 :: call delsprite(all) :: Return
+2900 call sprite(#10,100,9,132,200)
+2910 call sprite(#13,112,11,140,200)
+2920 call pkstart(pk)
+2930 a$=bin$("0498394c80e3752ab85705acfaae80955f1835538353ad25c0b7610cf8358301bfa513e0af7402fc9d4e805fda10705531cb33f37e4b75aac8dceb3cd49b3489ce16cb6e8ad85335264b288bc956f776ad1cda32d2938d6ae8f0084d3bea1133c2d56dab7bca")
+2940 b$=bin$("34956da5ed294254b785b6250e4ddf22f062a93a3a31a9a3f4d8543b046cd22d2b6c23b031d3887083c042d56a3a2923472a668fac0ced2d5cc5fa88718c080eed2bc6f17248bc0b01c66e47c02eee08d8a91c01cb972360bb72046c9f8e80edca10b06c28")
+2950 sp$=chr$(96) & chr$(0) & chr$(LEN(a$)+LEN(b$)) & a$ & b$
+2960 state=1
+2970 x=200
+2980 gx=70
+2990 gy=50
+3000 if bl(house)=0 then gosub 3930 :: call delsprite(all) :: Return
+3010 call sprite(#12,108,13,50,150)
+3020 call key(1,k,s)
+3030 if s=-1 then k=0
+3040 call joyst(1,jx,jy)
+3050 on state gosub 3350,3440,3540,3680,3870
+3060 gxd = gxd + (rnd*11)-5
+3070 gyd = gyd + (rnd*11)-5
+3080 call position(#12,gy,gx)
+3090 if gx<30  then gxd=rnd*10+1
+3100 if gx>200 then gxd=-rnd*10-1
+3110 if gy<30  then gyd=rnd*10+1
+3120 if gy>70  then gyd=-rnd*10-1
+3130 if state>3 then GOSUB 20260
+3140 if GBND=2 then GXD=0 :: GYD = 10
+3150 if state<6 then call motion(#12,gyd,gxd)
+3160 call pkplus(pk,ac)
+3170 CALL LINK("DELAY",40)
+3180 IF NOT (state>5) THEN 3020
+3190 if state=6 then gosub 3770
+3200 call delsprite(all)
+3210 return
+3220 CALL LINK("COLOR2",29,7,11)
+3230 CALL LINK("COLOR2",30,7,11)
+3240 call sprite(#10,104,9,110,120)
+3250 call sprite(#11,104,9,100,100)
+3260 CALL LINK("DELAY",500)
+3270 for i=1 to 120 step 4
+3280 call locate(#10,min(132,110+i/3),120+i)
+3290 call locate(#11,min(132,100+i/3),100+i)
+3300 CALL LINK("DELAY",80)
+3310 call pkplus(pk,ac)
+3320 next i
+3330 hq=0 :: TR=ass(4)
+3340 return
+3350 x=max(x+jx,4)
+3360 if jx<>0 then call pattern(#10,100-4*(jx=4))
+3370 call locate(#10,132,x)
+3380 call locate(#13,140,x)
+3390 if k<>18 then return
+3400 trx = int(x/8)*8+3
+3410 call locate(#13,153,trx)
+3420 state = state + 1
+3430 return
+3440 x=max(x+jx,4)
+3450 if jx<>0 then call pattern(#10,100-4*(jx=4))
+3460 call locate(#10,132,x)
+3470 if k<>18 then return
+3480 call pattern(#10,104)
+3490 call sprite(#11,100,9,132,200)
+3500 x1=x
+3510 x=200
+3520 state = state + 1
+3530 return
+3540 x=x+jx
+3550 if jx<>0 then call pattern(#11,100-4*(jx=4))
+3560 call locate(#11,132,x)
+3570 if k<>18 then return
+3580 call pattern(#11,100)
+3590 x2 = x
+3600 call sprite(#1,94,4,40,x2-60)
+3610 call sprite(#2,94,4,72,x2-44)
+3620 call sprite(#3,94,4,104,x2-28)
+3630 call sprite(#4,98,4,40,x1+60)
+3640 call sprite(#5,98,4,72,x1+44)
+3650 call sprite(#6,98,4,104,x1+28)
+3660 state = state + 1
+3670 return
+3680 x1=x1-4*(jx=4)
+3690 x2=x2+4*(jx=-4)
+3700 if jx=4  then call locate(#10,132,x1,#4,40,x1+60,#5,72,x1+44,#6,104,x1+28)
+3710 if jx=-4 then call locate(#11,132,x2,#1,40,x2-60,#2,72,x2-44,#3,104,x2-28)
+3720 if k<>18 then return
+3730 state=5
+3740 try=123
+3750 call sprite(#14,120,12,123,trx-6)
 3760 return
-3770 END
-20000 display at(17,4):"Insufficient funding!"
-20010 call sound(600,110,0,220,4,440,8)
-20020 CALL LINK("DELAY",2000)
-20030 call hchar(17,1,32,32)
-20040 k=0
+3770 call delsprite(#1,#2,#3,#4,#5,#6)
+3780 call pattern(#10,116,#11,116)
+3790 call motion(#12,-5,5)
+3800 CALL LINK("DISPLY",1,5,"You crossed the streams!")
+3810 call position(#12,gy,gx)
+3820 call pkplus(pk,ac)
+3830 IF NOT (gy<5 or gx>250) THEN 3810
+3840 call delsprite(all)
+3850 HQ=1
+3860 return
+3870 if try >20 then try=try-2 else state=8
+3880 call locate(#14,try,trx-6)
+3890 if try-int(try/8)*8=1 then GOSUB 20350
+3900 call distance(#12,#14,e)
+3910 if e<800 or state=8 then GOSUB 20390
+3920 return
+3930 call sprite(#11,100,9,132,230)
+3940 for i=1 to 70 step 4
+3950 call locate(#10,132,200-i,#13,140,200-i,#11,132,230-i)
+3960 CALL LINK("DELAY",80) :: call pkplus(pk,ac)
+3970 next i
+3980 call pattern(#10,104,#11,104)
+3990 CALL LINK("DELAY",1000)
+4000 for i=70 to 0 step -4
+4010 call locate(#10,132,200-i,#13,140,200-i,#11,132,230-i)
+4020 CALL LINK("DELAY",80) :: call pkplus(pk,ac)
+4030 next i
+4040 return
+4050 END
+20000 s1=(s1=0) :: x2=x2+x/4
+20010 call hchar(18,x2/2-1,32,3) :: call hchar(19,x2/2-1,32,3)
+20020 if s1 then call hchar(18,x2/2,180,1) :: call hchar(19,x2/2,181,1)
+20030 if s1=0 then call hchar(18,x2/2,176,1) :: call hchar(19,x2/2,177,1)::call hchar(18,x2/2+1,178,1) :: call hchar(19,x2/2+1,179,1)
+20040 call locate(#4,140,x2*4+1)
 20050 RETURN
-20060 gx=1 :: gy=120 + RND*40
-20070 RETURN
-20080 gx=RND*40+1 :: gy=160
-20090 RETURN
-20100 gx=240-RND*40 :: gy=160
+20060 display at(17,4):"Insufficient funding!"
+20070 call sound(600,110,0,220,4,440,8)
+20080 CALL LINK("DELAY",2000)
+20090 call hchar(17,1,32,32)
+20100 k=0
 20110 RETURN
-20120 gx=240 :: gy= 120 + RND*40
+20120 gx=1 :: gy=120 + RND*40
 20130 RETURN
-20140 GP=GP+1
-20150 if int(RND*2)=1 then gosub 2360 else gosub 2380
-20160 if my>50 then call locate(#1,my-2,mx)
-20170 call sound(-500,-6,8)
-20180 if GP=15 then call sprite(#1,124,16,194,1,0,0)
+20140 gx=RND*40+1 :: gy=160
+20150 RETURN
+20160 gx=240-RND*40 :: gy=160
+20170 RETURN
+20180 gx=240 :: gy= 120 + RND*40
 20190 RETURN
-20200 dx = gx - (x1+28 + (135-gy)/2)
-20210 GBND=0
-20220 if dx<-5 and dx>-20 then gxd=5 :: call sound(-200,110,0) :: GBND=1
-20230 if dx<-20 and dx>-40 then gxd=-5 :: call sound(-200,220,0)
-20240 dx = gx - (x2 - (135-gy)/2)
-20250 if dx<5 and dx>-20 then gxd=-5 :: call sound(-200,440,0) :: GBND = GBND+1
-20260 if dx>5 and dx<15 then gxd=5  :: call sound(-200,880,0)
-20270 if state<5 and x2-x1<125 then state=6
-20280 RETURN
-20290 call gchar(try/8+4,trx/8+2,c)
-20300 call hchar(try/8+4,trx/8+2,16,1)
-20310 bg$=bg$&chr$(c)
-20320 RETURN
-20330 for try=try to 123 step 2
-20340 call locate(#14,try,trx-6)
-20350 if state=8 then call locate(#12,gy-8+rnd*4,gx-8+rnd*4) else call locate(#12,try,trx-9+rnd*6)
-20360 if try-int(try/8)*8=1 then GOSUB 20550
-20370 CALL LINK("DELAY",40)
-20380 call pkplus(pk,ac)
-20390 next try
-20400 call delsprite(#12,#14,#1,#2,#3,#4,#5,#6)
-20410 if state=8 then GOSUB 20580 else call color(#13,3)
-20420 GOTO 20500
-20430 x1=x1+4
-20440 if x1=trx-3 then call locate(#13,140,trx) :: trx=trx+4
-20450 call locate(#10,132,x1)
-20460 if x1=x2-40 then call pattern(#11,104)
-20470 if x2<x1-30 then call locate(#11,132,x2) :: x2=x2+4
-20480 call pkplus(pk,ac)
-20490 CALL LINK("DELAY",30)
-20500 IF x1<250 THEN 20430
-20510 if HQ=0 then bl(house)=0 :: TR=TR-1 :: IF TR=0 then HQ=1
-20520 call delsprite(#10,#11,#13)
-20530 state=7
-20540 RETURN
-20550 call hchar(try/8+4,trx/8+2,asc(seg$(bg$,len(bg$),1)))
-20560 bg$=seg$(bg$,1,len(bg$)-1)
-20570 RETURN
-20580 for i=1 to 132-gy
-20590 call locate(#12,gy+i,gx+i*(x2-gx)/(132-gy))
-20600 call pkplus(pk,ac)
-20610 CALL LINK("DELAY",40)
-20620 next i
-20630 call color(#11,3)
-20640 call motion(#12,-5,5)
-20650 call position(#12,gy,gx)
+20200 GP=GP+1
+20210 if int(RND*2)=1 then gosub 2640 else gosub 2660
+20220 if my>50 then call locate(#1,my-2,mx)
+20230 call sound(-500,-6,8)
+20240 if GP=15 then call sprite(#1,124,16,194,1,0,0)
+20250 RETURN
+20260 dx = gx - (x1+28 + (135-gy)/2)
+20270 GBND=0
+20280 if dx<-5 and dx>-20 then gxd=5 :: call sound(-200,110,0) :: GBND=1
+20290 if dx<-20 and dx>-40 then gxd=-5 :: call sound(-200,220,0)
+20300 dx = gx - (x2 - (135-gy)/2)
+20310 if dx<5 and dx>-20 then gxd=-5 :: call sound(-200,440,0) :: GBND = GBND+1
+20320 if dx>5 and dx<15 then gxd=5  :: call sound(-200,880,0)
+20330 if state<5 and x2-x1<125 then state=6
+20340 RETURN
+20350 call gchar(try/8+4,trx/8+2,c)
+20360 call hchar(try/8+4,trx/8+2,16,1)
+20370 bg$=bg$&chr$(c)
+20380 RETURN
+20390 for try=try to 123 step 2
+20400 call locate(#14,try,trx-6)
+20410 if state=8 then call locate(#12,gy-8+rnd*4,gx-8+rnd*4) else call locate(#12,try,trx-9+rnd*6)
+20420 if try-int(try/8)*8=1 then GOSUB 20610
+20430 CALL LINK("DELAY",40)
+20440 call pkplus(pk,ac)
+20450 next try
+20460 call delsprite(#12,#14,#1,#2,#3,#4,#5,#6)
+20470 if state=8 then GOSUB 20640 else call color(#13,3)
+20480 GOTO 20560
+20490 x1=x1+4
+20500 if x1=trx-3 then call locate(#13,140,trx) :: trx=trx+4
+20510 call locate(#10,132,x1)
+20520 if x1=x2-40 then call pattern(#11,104)
+20530 if x2<x1-30 then call locate(#11,132,x2) :: x2=x2+4
+20540 call pkplus(pk,ac)
+20550 CALL LINK("DELAY",30)
+20560 IF x1<250 THEN 20490
+20570 if HQ=0 then bl(house)=0 :: TR=TR-1 :: IF TR=0 then HQ=1
+20580 call delsprite(#10,#11,#13)
+20590 state=7
+20600 RETURN
+20610 call hchar(try/8+4,trx/8+2,asc(seg$(bg$,len(bg$),1)))
+20620 bg$=seg$(bg$,1,len(bg$)-1)
+20630 RETURN
+20640 for i=1 to 132-gy
+20650 call locate(#12,gy+i,gx+i*(x2-gx)/(132-gy))
 20660 call pkplus(pk,ac)
-20670 IF NOT (gy<5 or gx>250) THEN 20650
-20680 pk=pk+300 :: HQ=1
-20690 call delsprite(#12)
-20700 RETURN
+20670 CALL LINK("DELAY",40)
+20680 next i
+20690 call color(#11,3)
+20700 call motion(#12,-5,5)
+20710 call position(#12,gy,gx)
+20720 call pkplus(pk,ac)
+20730 IF NOT (gy<5 or gx>250) THEN 20710
+20740 pk=pk+300 :: HQ=1
+20750 call delsprite(#12)
+20760 RETURN
 30000 sub drawhouse(h,b)
 30010 r=int(h/6) :: c=h-6*r
 30020 if c>0 then call hchar(r*5+1,c*7-3,b) :: call hchar(r*5+2,c*7-3,b+7) :: call hchar(r*5+3,c*7-3,b+6)
@@ -473,5 +507,5 @@
 30330 CALL LINK("CHAR2",144,"FF80808080808080FF00000000000000FF01010101010101010101010101010101010101010101FF")
 30340 CALL LINK("CHAR2",149,"00000000000000FF80808080808080FF80808080808080800000000000000000")
 30350 CALL LINK("CHAR2",160,"FF80808080808080FF00010101010100FF002324E4242300FF00008080800080FF01010101010101")
-30360 CALL LINK("CHAR2",167,"0000000000000000000103068CD87020")
+30360 CALL LINK("CHAR2",167,"0000000000000000000103068CD87020FFFFFF00FFFF00FFFFFFFFFFFFFFFFFF")
 30370 SUBEND

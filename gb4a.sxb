@@ -9,6 +9,7 @@ gosub title
 gosub init
 
 repeat
+  gosub final
   gosub shop
   repeat
     gosub map
@@ -22,6 +23,43 @@ repeat
   until s=1
 until k=78
 end
+
+final:
+  call magnify(4)
+  call clear
+  call color2(18,4,13)
+  call char(112,"80",113,"",114,"",115,"")
+  call char(116,#CHAR3084:8)
+  call char(124,#CHAR3092:8)
+  call char2(176,#CHAR3116:6)
+  call color2(19,9,1)
+  call sprite(#1,116,16, 100,40,#2,120,16,132,40,#3,128,13,153,40)
+  call sprite(#4,112,11,18*8-4,28*8-3)
+  call hchar(20,1,169,32) :: call hchar(21,1,170,32)
+  call hchar(18,28,180,1)
+  call hchar(19,28,181,1)
+  y1 = 100 :: x1 = 40 :: e = -50 :: gx=1
+  x2 = 56 :: s1=0
+  repeat
+    y1 = y1 + e/75 :: e = e+1 :: x1=x1+gx
+    call locate(#1,y1-2,x1,#2,y1+32,x1,#3,153,x1)
+    // call delay(50)
+    if e=51 then e=-50 :: gx=-gx
+    if e=0 then call pattern(#2,122+gx*2)
+    call joyst(1,x,y)
+    if x<>0 then begin
+       s1=(s1=0) :: x2=x2+x/4
+       call hchar(18,x2/2-1,32,3) :: call hchar(19,x2/2-1,32,3)
+       if s1 then call hchar(18,x2/2,180,1) :: call hchar(19,x2/2,181,1)
+       if s1=0 then call hchar(18,x2/2,176,1) :: call hchar(19,x2/2,177,1)::call hchar(18,x2/2+1,178,1) :: call hchar(19,x2/2+1,179,1)
+       call locate(#4,140,x2*4+1)
+    end
+    if x2<11 or x2>42 or (x2<33 and x2>19) then k=0 else call coinc(all,k)
+    if k<>0 then call sound(-300,440,0)
+    call key(1,k,s)
+  until s<>0
+  call delsprite(all)
+return
 
 title:
   call magnify(4)
