@@ -8,7 +8,7 @@ call clear
 call screen2(2)
 call autochar
 
-dim GEnc(9),ass(4),bl(30)
+dim GEnc(9),ass(5),bl(30)
 
 gosub title
 gosub init
@@ -22,6 +22,7 @@ repeat
   until pk>=9999
   gosub final
   display at(16,5):"Play again? (Y/N)"
+  CALL DISPLY(23,2,"@2023 by S.Bauch & H.Spahrbier")
   repeat
     call key(3,k,s)
   until s=1
@@ -29,6 +30,9 @@ until k=78
 end
 
 title:
+  CALL VWRITE(2432,BIN$("038D1A900F038D1A9F05038D1A900F038D1A9F05038415900A038114900A038E11900F038E119F0503800F900F03830E9F0503830E900F03830E9F05038114900F0381149F05038114900F0381149F05" )
+  CALL VWRITE(2512,BIN$("038D1A900F038D1A9F05038D1A900F038D1A9F05038415900A038114900A038E11900F038E119F0503800F900F03830E9F0503830E900F03830E9F0503811490140381149F14039FBFDF01000980" )
+  // CALL PLAY(2432)
   call magnify(4)
   call char(116,#CHAR3064:4)
   call char(120,#CHAR3068:4)
@@ -48,14 +52,14 @@ init:
     bl(i)=0
   next i
  dy1 = 145 :: dx1 = 121
- BL(15)=1
- HN=7+int(RND*3)*6+INT(RND*4)
- HP=150
+ HN=15
+ GOSUB NextBlinkHouse
  HQ=0
  pkmm = 5000 + 500*rnd  // Marshmallows first appearance
  AC = 50  // Account: $ / 50 (=5.000$)
- for i=1 to 4 :: ASS(i)=0 :: next i
- //ASS(4)=5
+ for i=1 to 5 :: ASS(i)=0 :: next i
+ //ASS(5)=5
+ CALL CHAR2(64,"3C4299A1A199423C")
 return
 
 // *** SHOP ***
@@ -74,11 +78,12 @@ shop:
   call waitkey
   call clear
   display at(1,10):"Equipment"
-  display at( 5,2):"Image Intensifier  $800" // 1
+  display at( 5,2):"PK Energy Detector $800" // 1
   display at( 7,2):"Bait               $400" // 2
   display at( 9,2):"Ghost Vacuum       $500" // 3
-  display at(11,2):"Traps              $600 x 0" // 4
-  display at(13,2):"Done Shopping"
+  display at(11,2):"Image Intensifier  $800" // 4
+  display at(13,2):"Traps              $600 x 0" // 5
+  display at(15,2):"Done Shopping"
   display at(20,2):"Credit           $  "&str$(AC)&"00"
   call char(116,#CHAR3112:4)
   call sprite(#1,116,15,33,6)
@@ -89,24 +94,24 @@ shop:
   until s=0
   repeat
     call joyst(1,x,y)::call key(1,k,s)
-    gy=gy-y*4
-    if gy>97 or gy<33 then gy=33
+    gy=gy-y*4-16*(k=0)+16*(k=5)
+    if gy>113 or gy<33 then gy=33
     if s<>0 or y<>0 then call delay(200)
     call locate(#1,gy,6)
     gx=(gy-17)/16
-    if k=18 and gy<81 then ass(gx)=-(ass(gx)=0) :: call hchar(3+gx*2,30,167+ass(gx))
-    if k=18 and gy=81 then ass(gx)=-(ass(gx)+1)*(ass(gx)<9) :: call hchar(3+gx*2,30,48+ass(gx))
-    E = AC - ass(1)*8 - ass(2)*4 - ass(3)*5 - ass(4)*6
+    if k=18 and gy<97 then ass(gx)=-(ass(gx)=0) :: call hchar(3+gx*2,30,167+ass(gx))
+    if k=18 and gy=97 then ass(gx)=-(ass(gx)+1)*(ass(gx)<9) :: call hchar(3+gx*2,30,48+ass(gx))
+    E = AC - ass(1)*8 - ass(2)*4 - ass(3)*5 - ass(4)*8 - ass(5)*6
     display at(20,22):str$(E)&"00"
-    if k=18 and gy=97 and E<0 then begin
+    if k=18 and gy=113 and E<0 then begin
       display at(17,4):"Insufficient funding!"
       call sound(600,110,0,220,4,440,8)
       call delay(2000)
       call hchar(17,1,32,32)
       k=0
     end
-  until k=18 and gy=97
-  AC=E
+  until k=18 and gy=113
+  AC=E :: TR=ass(5)
   call delsprite(#1)
 return
 
@@ -149,6 +154,9 @@ map:
     if j<128 then call color2(15,2,10,16,2,10) else call color2(15,2,13,16,2,13)
     call mod(x1,28,mx) :: call mod(y1,20,my)
     if mx=9 and my=5 then call joyst(1,x,y)
+    if x1=9   and x=-4 then x=0
+    if x1=233 and x=4  then x=0
+    if y1=145 and y=-4 and x1<>93 then y=0
     if x<>0 then y=0
     call gchar(y1/8+1-(y/2),max(x1/8+1+(x/2),1),e)
     if e=16 then x1=x1+x :: y1=y1-y ELSE gosub CalcHouse
@@ -158,6 +166,7 @@ map:
     if GY>0 then gosub MoveGhost
     if pk>pkmm then gosub Marshmallow
     if pk>=hp then gosub StartBlink
+    if ass(4)=1 and abs(y1-(hny*8-7))<24 and abs(x1-(hnx*8-7))<40 then call hchar(hny,hnx,140) else call hchar(hny,hnx,136)
     call locate(#1,y1,x1,#2,y1,x1)
     call key(1,k,s)
   until (house>0 and k=18 and HQ=0) OR (house=26 and k=18 and HQ=1)
@@ -232,12 +241,22 @@ return
 
 StartBlink:
   call drawhouse(HN,144)
-  bl(hn)=1
-  while bl(hn)=1
-    HN=7+int(RND*3)*6+INT(RND*4)
-  wend
-  HP=PK+100+int(rnd*200)
+  gosub NextBlinkHouse
 return
+
+NextBlinkHouse:
+  bl(hn)=1 :: i=0
+  ass(4)=abs(ass(4))
+  while bl(hn)=1 and i<30
+    HN=7+int(RND*3)*6+INT(RND*4)
+    i=i+1
+  wend
+  if bl(hn)=1 then ass(4)=-ass(4)
+  HNX=(hn-6*int(hn/6))*7-1
+  HNY=int(hn/6)*5+2
+  HP=PK+100+int(rnd*200)
+RETURN
+
 
 // *** DRIVE ***
 
@@ -282,6 +301,7 @@ drive:
   verz=20
 
   call pkstart(pk)
+  call sprite(#1,124,16,194,1,0,0)
 
   repeat
     call joyst(1,x,y)
@@ -310,10 +330,10 @@ drive:
       call sound(-500,-6,8)
       if GP=15 then call sprite(#1,124,16,194,1,0,0)
     end else GP=0
-    if my>180 and my<200 then pk=pk+100 :: call sprite(#1,124,16,194,1,0,0)
+    if my>180 and my<194 then pk=pk+100 :: call sprite(#1,124,16,194,1,0,0)
     call delay(verz)
     dr2=dr2-1 :: call pkplus(pk,ac)
-    if dr2=0 then dr2=5 :: drc=drc+1
+    if dr2=0 then dr2=3 :: if my=0 then drc=drc+1
   until drc>dr and x1>=190 and verz>150
   call delay(2000)
   call delsprite(all)
@@ -371,9 +391,11 @@ HouseGhost:
   gx=70
   gy=50
 
+  if pk>=hp then bl(hn)=1 :: gosub NextBlinkHouse :: HP=PK+100+int(rnd*200)
+
   if bl(house)=0 then gosub NoGhostHere :: call delsprite(all) :: Return
 
-  call sprite(#12,108,13,50,150)  // Ghost
+  call sprite(#12,108,15-2*ass(4),50,150)  // Ghost Color 13 / 15
   repeat
     call key(1,k,s)
     if s=-1 then k=0
@@ -418,7 +440,7 @@ VisitHQ:
     call delay(80)
     call pkplus(pk,ac)
   next i
-  hq=0 :: TR=ass(4)
+  hq=0 :: TR=ass(5)
 return
 
 state_buster1bait:
@@ -680,10 +702,14 @@ sub pkplus(pk,ac)
 subend
 
 // CALL SAY stuerzt compiliert ab
-// Image Intensifier
 // MIDI Track aufbereiten
 // Sound-Compiler und Auto-Player testen
-// Account-Nummer
+// Error:
+// - Ghost too fast
+// - Map: no movement
+// - Drive: Stripes not slowing down
+// - Drive: Additional Stripes top right
+
 
 
 
