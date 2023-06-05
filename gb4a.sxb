@@ -13,32 +13,36 @@ repeat
   repeat
     gosub map
     gosub drive
-    gosub HouseGhost
+    if pk<9999 then gosub HouseGhost
   until pk>=9999
   gosub final
   display at(16,5):"Play again? (Y/N)"
   CALL DISPLY(23,2,"@2023 by S.Bauch & H.Spahrbier")
+  CALL PLAY(2432)
   repeat
     call key(3,k,s)
   until s=1
+  call sound(-100,110,30)
 until k=78
 end
 
 title:
   CALL VWRITE(2432,BIN$("038D1A900F038D1A9F05038D1A900F038D1A9F05038415900A038114900A038E11900F038E119F0503800F900F03830E9F0503830E900F03830E9F05038114900F0381149F05038114900F0381149F05" )
   CALL VWRITE(2512,BIN$("038D1A900F038D1A9F05038D1A900F038D1A9F05038415900A038114900A038E11900F038E119F0503800F900F03830E9F0503830E900F03830E9F0503811490140381149F14039FBFDF01000980" )
-  // CALL PLAY(2432)
+  CALL PLAY(2432)
   call magnify(4)
   call char(116,#CHAR3064:4)
   call char(120,#CHAR3068:4)
   call sprite(#1,116,9, 50,112,#2,120,15, 50,112)
   display at(13,9):"Ghostbusters!"
+  display at(24,25):"RC1"
   repeat
     call key(3,k,s)
     call key(1,k,s1)
   until s=1 or s1=1
   call delsprite(all)
   ac=50
+  call sound(-100,110,30)
 return
 
 init:
@@ -140,8 +144,8 @@ map:
   call color2(13,2,13,14,2,13,15,2,10,16,2,10)
   call color2(17,2,12,31,16,2)
   call pkstart(pk)
-  Ghost=16 :: GY = 0
-  dr=0 :: GS=10
+  Ghost=16 :: GY = 0 :: GhostPK=100+100*rnd
+  dr=0 :: GhostSpeed=10
   x1=dx1 :: y1=dy1
   if hq=1 then display at(23,11):"Go to HQ!"
   repeat
@@ -152,12 +156,13 @@ map:
     if x1=9   and x=-4 then x=0
     if x1=233 and x=4  then x=0
     if y1=145 and y=-4 and x1<>93 then y=0
+    if y1=25  and y=4  then y=0
     if x<>0 then y=0
-    call gchar(y1/8+1-(y/2),max(x1/8+1+(x/2),1),e)
+    call gchar(y1/8+2-(y/2),max(x1/8+1+(x/2),1),e)
     if e=16 then x1=x1+x :: y1=y1-y ELSE gosub CalcHouse
     if e=16 and x+y<>0 then dr=dr+1
     call pkplus(pk,ac)
-    if pk>10 and GY=0 and RND*200<PK and ghost<26 then gosub startghost
+    if pk>GhostPK and GY=0 and ghost<26 then gosub startghost
     if GY>0 then gosub MoveGhost
     if pk>pkmm then gosub Marshmallow
     if pk>=hp then gosub StartBlink
@@ -193,21 +198,15 @@ startghost:
         end
   endcase
   call sprite(#ghost,124-4*(gx>50),15,gy,gx)
-  // GS=200+int((10000-PK)/25) :: GP=0
   GP=0
 return
 
 MoveGhost:
-  GS=GS-1 :: if GS<1 then GP=GP+1 :: GS=5-int(pk/2000)
+  GhostSpeed=GhostSpeed-1 :: if GhostSpeed<1 then GP=GP+1 :: GhostSpeed=5-int(pk/2000)
   call locate(#ghost,GY+GP*(9-GY)/160,GX+GP*(160-GX)/160)
   if GP=160 then  call delsprite(#ghost):: GY=0 :: pk=pk+100
   call coinc(#ghost,#1,10,GC)
-  if GC then GY=0 :: GEnc(ghost-16)=dr :: Ghost=ghost+1
-//  GP=GP+1
-//  call locate(#ghost,GY+GP*(9-GY)/GS,GX+GP*(160-GX)/GS)
-//  if GP=GS then  call delsprite(#ghost):: GY=0 :: pk=pk+100
-//  call coinc(#ghost,#1,10,GC)
-//  if GC then GY=0 :: GEnc(ghost-16)=dr :: Ghost=ghost+1
+  if GC then GY=0 :: GEnc(ghost-16)=dr :: Ghost=ghost+1 :: GhostPK=pk+10+40*rnd
 return
 
 Marshmallow:
@@ -376,17 +375,17 @@ HouseGhost:
     next j
   next i
 
+  call pkstart(pk)
   if house=26 then gosub VisitHQ :: call delsprite(all) :: Return
 
   call sprite(#10,100,9,132,200)  // Buster 1
   call sprite(#13,112,11,140,200) // Trap
-  call pkstart(pk)
 
   // speech: He slimed me!
-//  a$=bin$("0498394c80e3752ab85705acfaae80955f1835538353ad25c0b7610cf8358301bfa513e0af7402fc9d4e805fda10705531cb33f37e4b75aac8dceb3cd49b3489ce16cb6e8ad85335264b288bc956f776ad1cda32d2938d6ae8f0084d3bea1133c2d56dab7bca")
-//  b$=bin$("34956da5ed294254b785b6250e4ddf22f062a93a3a31a9a3f4d8543b046cd22d2b6c23b031d3887083c042d56a3a2923472a668fac0ced2d5cc5fa88718c080eed2bc6f17248bc0b01c66e47c02eee08d8a91c01cb972360bb72046c9f8e80edca10b06c28")
-//  sp$=chr$(96) & chr$(0) & chr$(LEN(a$)+LEN(b$)) & a$ & b$
-//
+  a$=bin$("0498394c80e3752ab85705acfaae80955f1835538353ad25c0b7610cf8358301bfa513e0af7402fc9d4e805fda10705531cb33f37e4b75aac8dceb3cd49b3489ce16cb6e8ad85335264b288bc956f776ad1cda32d2938d6ae8f0084d3bea1133c2d56dab7bca")
+  b$=bin$("34956da5ed294254b785b6250e4ddf22f062a93a3a31a9a3f4d8543b046cd22d2b6c23b031d3887083c042d56a3a2923472a668fac0ced2d5cc5fa88718c080eed2bc6f17248bc0b01c66e47c02eee08d8a91c01cb972360bb72046c9f8e80edca10b06c28")
+  sp$=chr$(96) & chr$(0) & chr$(LEN(a$)+LEN(b$)) & a$ & b$
+
   state=1
   x=200
   gx=70
@@ -396,7 +395,7 @@ HouseGhost:
 
   if bl(house)=0 then gosub NoGhostHere :: call delsprite(all) :: Return
 
-  call sprite(#12,108,15-2*ass(4),50,150)  // Ghost Color 13 / 15
+  call sprite(#12,108,15-2*abs(ass(4)),50,150)  // Ghost Color 13 / 15
   repeat
     call key(1,k,s)
     if s=-1 then k=0
@@ -412,7 +411,7 @@ HouseGhost:
     if state>3 then begin
       dx = gx - (x1+28 + (135-gy)/2)
       GBND=0
-      if dx<-5 and dx>-20 then gxd=5 // :: call sound(-200,110,0) :: GBND=1
+      if dx<-5 and dx>-20 then gxd=5 :: GBND=1 // :: call sound(-200,110,0)
       if dx<-20 and dx>-40 then gxd=-5 // :: call sound(-200,220,0)
 
       dx = gx - (x2 - (135-gy)/2)
@@ -537,7 +536,7 @@ State_Trap:
         call pkplus(pk,ac)
         call delay(40)
       next i
-      // call SAY("",sp$)
+      // call SAY(,sp$)
       call color(#11,3)
       call motion(#12,-5,5)
       repeat
@@ -602,7 +601,7 @@ final:
   x2 = 52 :: s1=0 :: J=-1 :: JY = 3
   repeat
     y1 = y1 + e :: e = e+1 :: x1=x1+gx
-    call locate(#1,y1/75+98,x1,#2,y1/75+132,x1,#3,153,x1)
+    call locate(#1,y1/75+100,x1,#2,y1/75+134,x1,#3,154,x1)
     if e=51 then e=-50 :: gx=-gx
     if e=0 then call pattern(#2,122+gx*2)
     call joyst(1,x,y)
@@ -627,10 +626,11 @@ final:
   call disply(7,1,"You saved the city.")
   sp$=str$(ac) :: s=0
   call disply(10,1,"Your balance: "&sp$&"00$")
-  gosub encode
-  call disply(12,1,"Your new account number:")
-  call disply(14,1,A$)
-
+  if ac>50 then begin
+    gosub encode
+    call disply(12,1,"Your new account number:")
+    call disply(14,1,A$)
+  end
 return
 
 mmnext:
@@ -642,6 +642,7 @@ return
 mmsmash:
   call sound(-300,440,0)
   call hchar(18,x2/2-1,32,3) :: call hchar(19,x2/2-1,32,3)
+  call delsprite(#4)
   call char2(176,#CHAR3025,177,#CHAR3027)
   call disply(19,x2/2,chr$(176)&chr$(177))
   call disply(7,12,"Game Over!")
@@ -702,7 +703,7 @@ sub pkplus(pk,ac)
   display at(24,1):str$(AC)&"00";
 subend
 
-// CALL SAY stuerzt compiliert ab
+// CALL SAY ist kaum zu hoeren
 // MIDI Track aufbereiten
 // Sound-Compiler und Auto-Player testen
 // Error:
