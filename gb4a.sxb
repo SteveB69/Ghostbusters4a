@@ -1,3 +1,8 @@
+// Ghostbusters/4a
+// 2023 by Stefan Bauch & Helge Spahrbier
+//
+// see https://github.com/SteveB69/Ghostbusters4a
+
 call SCRN2
 call clear
 call screen2(2)
@@ -6,9 +11,10 @@ call autochar
 dim GEnc(9),ass(5),bl(30)
 
 gosub title
-gosub init
+
 
 repeat
+  gosub init
   gosub shop
   repeat
     gosub map
@@ -18,6 +24,7 @@ repeat
   gosub final
   display at(16,5):"Play again? (Y/N)"
   CALL DISPLY(23,2,"@2023 by S.Bauch & H.Spahrbier")
+  CALL DISPLY(24,10,"Version 1.0")
   CALL PLAY(2432)
   repeat
     call key(3,k,s)
@@ -27,15 +34,16 @@ until k=78
 end
 
 title:
-  CALL VWRITE(2432,BIN$("038D1A900F038D1A9F05038D1A900F038D1A9F05038415900A038114900A038E11900F038E119F0503800F900F03830E9F0503830E900F03830E9F05038114900F0381149F05038114900F0381149F05" )
-  CALL VWRITE(2512,BIN$("038D1A900F038D1A9F05038D1A900F038D1A9F05038415900A038114900A038E11900F038E119F0503800F900F03830E9F0503830E900F03830E9F0503811490140381149F14039FBFDF01000980" )
+  CALL VWRITE(2432,BIN$("038C35900F038C359F05038C35900F038C359F05038A2A9007038A2A9F0203832890070383289F02038E23900F038E239F0503801E900F03871C9F0503871C900F03871C9F05038328900F0383289F05" )
+  CALL VWRITE(2512,BIN$("038328900F0383289F05038C35900F038C359F05038C35900F038C359F05038A2A9007038A2A9F0203832890070383289F02038E23900F038E239F0503801E900F03871C9F0503871C900F03871C9F05" )
+  CALL VWRITE(2592,BIN$("038328900F0383289F19039FBFDF01000980" )
   CALL PLAY(2432)
+
   call magnify(4)
   call char(116,#CHAR3064:4)
   call char(120,#CHAR3068:4)
   call sprite(#1,116,9, 50,112,#2,120,15, 50,112)
   display at(13,9):"Ghostbusters!"
-  display at(24,25):"RC1"
   repeat
     call key(3,k,s)
     call key(1,k,s1)
@@ -86,7 +94,7 @@ shop:
   display at(20,2):"Credit           $  "&str$(AC)&"00"
   call char(116,#CHAR3112:4)
   call sprite(#1,116,15,33,4)
-  call color2(18,4,2)
+  call color2(18,4,2,17,2,2)
   GY=33
   repeat
     call key(1,k,s)
@@ -381,6 +389,8 @@ HouseGhost:
   call sprite(#10,100,9,132,200)  // Buster 1
   call sprite(#13,112,11,140,200) // Trap
 
+
+
   // speech: He slimed me!
   a$=bin$("0498394c80e3752ab85705acfaae80955f1835538353ad25c0b7610cf8358301bfa513e0af7402fc9d4e805fda10705531cb33f37e4b75aac8dceb3cd49b3489ce16cb6e8ad85335264b288bc956f776ad1cda32d2938d6ae8f0084d3bea1133c2d56dab7bca")
   b$=bin$("34956da5ed294254b785b6250e4ddf22f062a93a3a31a9a3f4d8543b046cd22d2b6c23b031d3887083c042d56a3a2923472a668fac0ced2d5cc5fa88718c080eed2bc6f17248bc0b01c66e47c02eee08d8a91c01cb972360bb72046c9f8e80edca10b06c28")
@@ -388,8 +398,8 @@ HouseGhost:
 
   state=1
   x=200
-  gx=70
-  gy=50
+  gx=70 :: gxd=0
+  gy=50 :: gyd=0
 
   if pk>=hp then bl(hn)=1 :: gosub NextBlinkHouse :: HP=PK+100+int(rnd*200)
 
@@ -401,26 +411,27 @@ HouseGhost:
     if s=-1 then k=0
     call joyst(1,jx,jy)
     on state gosub state_buster1bait,state_buster1,state_buster2,state_beam,state_trap
-    gxd = gxd + (rnd*11)-5
-    gyd = gyd + (rnd*11)-5
-    call position(#12,gy,gx)
-    if gx<30  then gxd=rnd*10+1
-    if gx>200 then gxd=-rnd*10-1
-    if gy<30  then gyd=rnd*10+1
-    if gy>70  then gyd=-rnd*10-1
+    gxd=gxd + (rnd*5)-2
+    gyd=gyd + (rnd*5)-2
+    if abs(gxd)>10 then gxd=gxd/2
+    if abs(gyd)>10 then gyd=gyd/2
+    if gx<30  then gxd=rnd*5
+    if gx>200 then gxd=-(rnd*5)
+    if gy<30  then gyd=rnd*5
+    if gy>70  then gyd=-(rnd*5)
+
     if state>3 then begin
       dx = gx - (x1+28 + (135-gy)/2)
-      GBND=0
-      if dx<-5 and dx>-20 then gxd=5 :: GBND=1 // :: call sound(-200,110,0)
-      if dx<-20 and dx>-40 then gxd=-5 // :: call sound(-200,220,0)
+      if dx<-5 and dx>-20 then gxd=2 :: gyd = rnd*3
+      if dx<-20 and dx>-40 then gxd=-2
 
       dx = gx - (x2 - (135-gy)/2)
-      if dx<5 and dx>-20 then gxd=-5 :: GBND = GBND+1 // :: call sound(-200,440,0)
-      if dx>5 and dx<15 then gxd=5 // :: call sound(-200,880,0)
-      if state<5 and x2-x1<125 then state=6 // streams crossed
+      if dx<5 and dx>-20 then gxd=-2 :: gyd = -(rnd*3)
+      if dx>5 and dx<15 then gxd=2
+      if state<5 and x2-x1<125 then state=6
     end
-    if GBND=2 then GXD=0 :: GYD = 10
-    if state<6 then call motion(#12,gyd,gxd)
+    if state<6 then gy=gy+gyd :: gx=gx+gxd :: call locate(#12,gy,gx)
+
     call pkplus(pk,ac)
     call delay(40)
   until state>5
@@ -536,7 +547,7 @@ State_Trap:
         call pkplus(pk,ac)
         call delay(40)
       next i
-      // call SAY(,sp$)
+      call SAY(,sp$)
       call color(#11,3)
       call motion(#12,-5,5)
       repeat
@@ -545,7 +556,7 @@ State_Trap:
       until gy<5 or gx>250
       pk=pk+300 :: HQ=1
       call delsprite(#12)
-    end else call color(#13,3) :: ac=ac+6
+    end else call color(#13,3) :: ac=ac+4
     while x1<250
       x1=x1+4
       if x1=trx-3 then call locate(#13,140,trx) :: trx=trx+4
@@ -586,7 +597,7 @@ final:
   call char2(176,#CHAR3116:6)
   call color2(19,5,1,20,15,1,29,2,14)
   call sprite(#1,116,16, 100,40,#2,120,16,132,40,#3,128,13,153,40)
-  call sprite(#4,112,6,18*8-4,26*8-7)
+  call sprite(#4,112,6,140,205)
   call hchar(20,1,169,32) :: call hchar(21,1,170,32)
   call hchar(18,26,180,1)
   call hchar(19,26,181,1)
@@ -703,11 +714,6 @@ sub pkplus(pk,ac)
   display at(24,1):str$(AC)&"00";
 subend
 
-// CALL SAY ist kaum zu hoeren
-// MIDI Track aufbereiten
-// Sound-Compiler und Auto-Player testen
-// Error:
-// - Map: no movement
 
 
 
